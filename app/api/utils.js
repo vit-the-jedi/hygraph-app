@@ -19,7 +19,7 @@ const utils = {
       const slug = trimmed.join("-");
       return slug;
     } catch (error) {
-      console.error(error);
+      console.log(`Error geenrating slug: ${error}`);
       return null;
     }
   },
@@ -27,7 +27,7 @@ const utils = {
     try {
       return new Date().toISOString().split("T")[0];
     }catch(e){
-      console.error(e);
+      console.log(`Error generating date: ${e}`);
       return null;
     } 
   },
@@ -36,7 +36,7 @@ const utils = {
       const keywords = metaKeywords.match(/content="(.*?)"/);
       return keywords[1];
     }catch(e){
-      console.error(e);
+      console.log(`No keywords found in document, proceeding...`)
       return null;
     } 
   },
@@ -47,7 +47,7 @@ const utils = {
       });
       return arr;
     } catch (error) {
-      console.error(error);
+      console.log(`No images found in document, proceeding...`);
       return null;
     }
   },
