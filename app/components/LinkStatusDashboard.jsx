@@ -1,5 +1,7 @@
 "use client";
+
 import PrimaryButton from "./buttons/PrimaryButton";
+import SecondaryButton from "./buttons/SecondaryButton";
 export default function LinkStatusDashboard({articleStatusInfo}){
 
   const goToHome = (event) => {
@@ -24,36 +26,37 @@ export default function LinkStatusDashboard({articleStatusInfo}){
   }
 
   return (
-    <div>
+    <section>
+          <div className="flex align-center justify-center"><PrimaryButton buttonConfig={{text:"Go Home", onClick: goToHome}} /></div>
       <ol>
       {formattedData.map((article) => (
         <li key={article} className="my-3 relative">
-          <div className={`border-2 p-3 rounded-md ${article.message ? 'border-rose-500' : 'border-emerald-400'}`}>
-            <h4 className="text-xl">Article {article.id + 1}</h4>
+          <div className={`border-2 p-3 rounded-md bg-violet-900 ${article.message ? 'border-rose-500' : 'border-emerald-400'}`}>
+            <h2 className="text-2xl">Article {article.id + 1}</h2>
             <span className={`status-indicator absolute border-1 rounded-full ${article.style} top-2 right-2 text-xs px-1`}>{article.status}</span>
             
             {article.message && <p>Message: <span className="text-rose-500">{article.message}</span></p>}
             
+            {article.result && 
+              <div>
+                <p>Result Id: {article.result} </p>
+                <a href={getCompletedContentEntry(article.result)} target="_blank" className="text-yellow-500 underline">View Content Entry</a>
+              </div>
+            }
+
             <div className="my-3">
               <a className="text-xs underline" href={article.link}>{article.link}</a>
             </div>
 
-            {article.result && 
-              <div>
-                <p>Result Id: {article.result} </p>
-                <a href={getCompletedContentEntry(article.result)} target="_blank" className="text-xs underline">View Content Entry</a>
-              </div>
-            }
-
             {article.status === 'error' && 
               <div className="mt-3">
-                <PrimaryButton buttonConfig={{text:"Retry", onClick: goToHome}} />
+                <SecondaryButton style={{marginLeft: '-40px'}} buttonConfig={{text:"Retry", onClick: goToHome}} />
               </div>  
               }
           </div>  
           </li>
       ))}
     </ol>
-    </div>
+    </section>
   );
 }

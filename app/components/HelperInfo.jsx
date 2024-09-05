@@ -5,6 +5,7 @@ export default function HelperInfo({errors}) {
   const errorHelpers = new Map();
   errorHelpers.set('value is not unique for the field "urlSlug"', 'There is already an existing article with that title. Change the title of the article and try again.');
   errorHelpers.set('Field "ArticleCreateInput.someField" of required type "SomeType!" was not provided.', 'Your article is missing a required field. Ensure you have a Title, Meta Keywords, Excerpt, and Cover Image in the article and try again.');
+  errorHelpers.set('The caller does not have permission', 'You must add googledocs@just-site-330115.iam.gserviceaccount.com as an editor on the article.');
   return (
     <aside className="bg-violet-950 pt-3 pb-4 px-3 my-10 rounded-md border-l-4 border-indigo-500">
       <div className='flex'>
