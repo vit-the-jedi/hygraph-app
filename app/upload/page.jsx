@@ -9,7 +9,7 @@ export default async function Upload({
   searchParams,
 }) {
   const info = [];
-  let hasError = false;
+  let errorMessages = [];
   if(searchParams.docLinks){
     const linkValues = searchParams.docLinks.split(',');
 
@@ -27,8 +27,8 @@ export default async function Upload({
         info[i][link].status = 'error';
         result.errors.forEach((error) => {
           info[i][link].message = error.message;
+          errorMessages.push(error.message);
         }); 
-        hasError = true;
       } else {
         info[i][link].status = 'complete';
         info[i][link].result = result.data.createArticle.id;
@@ -37,11 +37,13 @@ export default async function Upload({
     }
   }
   return (
-    <main className="flex min-h-screen flex-col items-center justify-start p-24 font-sans bg-indigo-950">
+    <main className="flex min-h-screen flex-col items-center p-10 justify-start font-sans bg-indigo-950">
       <Header />
-      <h1 className='text-4xl mb-10'>Review your uploads below</h1>
-      <LinkStatusDashboard articleStatusInfo={info}/>
-      {hasError && <HelperInfo/>}
+      <section style={{maxWidth:'900px',width:'100%', margin:'auto'}}>
+        <h1 className='text-4xl mb-10 text-center'>Review your uploads below</h1>
+        <LinkStatusDashboard articleStatusInfo={info}/>
+        {errorMessages.length > 0 && <HelperInfo errors={errorMessages}/>}
+      </section>
     </main>
   );
 }

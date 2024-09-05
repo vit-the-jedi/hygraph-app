@@ -34,7 +34,7 @@ export default function DocLinkForm() {
   return (
     <form className="grid my-3">
         {inputs.map((input) => (
-          <div className="flex m-3 relative">
+          <div key={input.id} className="flex m-3 relative">
           <input
             key={input.id}
             type="text"
@@ -53,7 +53,7 @@ export default function DocLinkForm() {
           }
           </div>
         ))}
-      <div className="flex">
+      <div className="flex align-center justify-center">
         <SecondaryButton buttonConfig={{text:"Add Another Link", onClick: addInput}}/>    
         <PrimaryButton buttonConfig={{text:"Start Upload", onClick: saveDocLinksAndRedirect}}/>
       </div>

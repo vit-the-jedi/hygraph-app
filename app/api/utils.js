@@ -5,31 +5,51 @@
 import fs from "fs";
 const utils = {
   generateSlug: (title) => {
-    const trimmed = title.split(" ").reduce((acc, curr, i, arr) => {
-      if (i <= 4) {
-        acc.push(curr.toLowerCase());
+    try {
+      const trimmed = title.split(" ").reduce((acc, curr, i, arr) => {
+        if (i <= 4) {
+          acc.push(curr.toLowerCase());
+        }
+        return acc;
+      }, []);
+      const currentYear = String(new Date().getFullYear());
+      if (title.includes(currentYear)) {
+        trimmed.push(currentYear);
       }
-      return acc;
-    }, []);
-    const currentYear = String(new Date().getFullYear());
-    if (title.includes(currentYear)) {
-      trimmed.push(currentYear);
+      const slug = trimmed.join("-");
+      return slug;
+    } catch (error) {
+      console.error(error);
+      return null;
     }
-    const slug = trimmed.join("-");
-    return slug;
   },
   generateDate: () => {
-    return new Date().toISOString().split("T")[0];
+    try {
+      return new Date().toISOString().split("T")[0];
+    }catch(e){
+      console.error(e);
+      return null;
+    } 
   },
   extractMetaKeywords: (metaKeywords) => {
-    const keywords = metaKeywords.match(/content="(.*?)"/);
-    return keywords[1];
+    try{
+      const keywords = metaKeywords.match(/content="(.*?)"/);
+      return keywords[1];
+    }catch(e){
+      console.error(e);
+      return null;
+    } 
   },
   extractImageUris: (data) => {
-    const arr = Object.keys(data).map((key) => {
-      return data[key].inlineObjectProperties.embeddedObject.imageProperties.contentUri;
-    });
-    return arr;
+    try {
+      const arr = Object.keys(data).map((key) => {
+        return data[key].inlineObjectProperties.embeddedObject.imageProperties.contentUri;
+      });
+      return arr;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
   },
   /* can upload by url to hygraph - but doesn't hurt to have this */
   downloadImage: async (url) => {

@@ -45,24 +45,28 @@ const sendArticle = async (link) => {
         docId
       );
       transpileDocsAstToHygraphAst(docData.body.content);
-      const imgUriArray = utils.extractImageUris(docData.inlineObjects);
+      const imgUriArray = utils.extractImageUris(docData?.inlineObjects);
       const uploadResults = [];
-      for (const imgUri of imgUriArray) {
-        uploadResults.push(await queries.uploadImage(imgUri));
+      if(imgUriArray){
+        for (const imgUri of imgUriArray) {
+          uploadResults.push(await queries.uploadImage(imgUri));
+        }
+        article.coverImage = {connect: {id: `${uploadResults[0].data.createAsset.id}`}};
+        if (uploadResults[1]) {
+          article.secondaryImage = {connect: {id: `${uploadResults[1].data.createAsset.id}`}};
+        }
+        if (uploadResults[2]) {
+          article.articleCardIcon = {connect: {id: `${uploadResults[2].data.createAsset.id}`}};
+        }
       }
+
       article.title = hygraphAst.title;
       article.urlSlug = utils.generateSlug(hygraphAst.title);
       article.date = utils.generateDate();
       article.excerpt = hygraphAst.excerpt;
       article.content = hygraphAst.ast;
       article.metaKeywords = utils.extractMetaKeywords(hygraphAst.metaKeywords);
-      article.coverImage = {connect: {id: `${uploadResults[0].data.createAsset.id}`}};
-      if (uploadResults[1]) {
-        article.secondaryImage = {connect: {id: `${uploadResults[1].data.createAsset.id}`}};
-      }
-      if (uploadResults[2]) {
-        article.articleCardIcon = {connect: {id: `${uploadResults[2].data.createAsset.id}`}};
-      }
+      
       const articleCreationResponse = await queries.sendArticle(article);
       console.log(articleCreationResponse);
       resolve(articleCreationResponse);
