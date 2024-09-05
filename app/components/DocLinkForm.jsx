@@ -3,6 +3,7 @@ import {useRouter} from "next/navigation";
 import { useState } from "react";
 import PrimaryButton from "./buttons/PrimaryButton.jsx";
 import SecondaryButton from "./buttons/SecondaryButton.jsx";
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
 export default function DocLinkForm() {
   const [inputs, setInputs] = useState([{ id: 1, value: '' }]);
@@ -42,9 +43,13 @@ export default function DocLinkForm() {
             onChange={(e) => handleInputChange(input.id, e.target.value)}
             className="border flex-1 p-2 border-gray-300 text-zinc-900 rounded-md"
           />
-          {input.id > 1 && <button className="rounded-full bg-blue-900 py-2 px-3 ml-3 absolute" style={{right:'-40px'}}key={input.id} id={input.id} type="button" onClick={removeInput}>
+          {/* <button className="rounded-full bg-blue-900 py-2 px-3 ml-3 absolute" style={{right:'-40px'}}key={input.id} id={input.id} type="button" onClick={removeInput}>
               X 
-            </button>
+            </button> */}
+          {input.id > 1 && 
+            <div key={input.id} className="rounded-full bg-blue-900 p-1 ml-3 absolute cursor-pointer" style={{right:'-60px', width:'40px',height: '40px', textAlign: 'center'}}>
+              <RemoveCircleOutlineIcon className="text-white relative" id={input.id} onClick={removeInput} style={{top:'2.5px'}}/>
+            </div>
           }
           </div>
         ))}

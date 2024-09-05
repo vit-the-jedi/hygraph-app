@@ -2,6 +2,7 @@
 import {sendArticle} from '../api/send-article.js';
 import LinkStatusDashboard from '../components/LinkStatusDashboard.jsx';
 import HelperInfo from '../components/HelperInfo.jsx';
+import Header from '../components/common/Header.jsx';
 
 export default async function Upload({
   params,
@@ -37,6 +38,7 @@ export default async function Upload({
   }
   return (
     <main className="flex min-h-screen flex-col items-center justify-start p-24 font-sans bg-indigo-950">
+      <Header />
       <h1 className='text-4xl mb-10'>Review your uploads below</h1>
       <LinkStatusDashboard articleStatusInfo={info}/>
       {hasError && <HelperInfo/>}
