@@ -119,6 +119,7 @@ const createAstFromDocs = (content) => {
   content.forEach((element) => {
     const elementContent = element?.paragraph;
     const innerElements = elementContent?.elements;
+    if(!elementContent || !innerElements ) return null;
     //check length of elements
     innerElements.forEach((innerEl, index, arr) => {
       const elementContentText = elementContent?.elements[index]?.textRun?.content.replace(/(\r\n|\n|\r)/gm,"");

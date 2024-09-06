@@ -15,11 +15,15 @@ export default function UploadCheckList() {
         </div>
         <div className='flex'>
           <CheckIcon className="text-indigo-500 relative top-2 mr-2 text-lg" />
-          <li className='my-1'>Allow <span className="text-yellow-500 whitespace-nowrap">googledocs@just-site-330115.iam.gserviceaccount.com</span> as an editor on each doc.</li>
+          <li className='my-1'>Allow <span className="text-yellow-500 bold whitespace-nowrap">googledocs@just-site-330115.iam.gserviceaccount.com</span> as an editor on each doc.</li>
         </div>
         <div className='flex'>
           <CheckIcon className="text-indigo-500 relative top-2 mr-2 text-lg" />
-          <li className='my-1'>Have values for all required fields in your documents.</li>
+          <li className='my-1'>Have values for all <a className="underline text-yellow-500" href="/required-fields" target='_blank'>required fields</a> in your documents.</li>
+        </div>
+        <div className='flex'>
+          <CheckIcon className="text-indigo-500 relative top-2 mr-2 text-lg" />
+          <li className='my-1'>Each document contains <span className="text-yellow-500 bold">only one article.</span></li>
         </div>
       </ul>
     </aside>
