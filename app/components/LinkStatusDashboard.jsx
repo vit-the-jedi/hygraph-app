@@ -30,7 +30,9 @@ export default function LinkStatusDashboard({articleStatusInfo}){
 
   return (
     <section>
-          <div className="flex align-center justify-center"><PrimaryButton buttonConfig={{text:"Go Home", onClick: goToHome}} /></div>
+      <div className="flex align-center justify-center">
+        <PrimaryButton buttonConfig={{text:"Go Home", onClick: goToHome}} />
+      </div>
       <ol>
       {formattedData.map((article) => (
         <li key={article} className="my-3 relative">

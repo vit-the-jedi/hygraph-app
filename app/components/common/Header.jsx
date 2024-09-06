@@ -7,13 +7,17 @@ export default function Header() {
   const config = {
     logoSize: {h:60,w:60},
   }
+  const goToHome = (event) => {
+    event.preventDefault();
+    window.location.href = '/';
+  }
   return (
     <header className="mb-10 ">
       <div className="flex justify-between w-60">
         <GoogleDocsLogo size={config.logoSize}/>
         <DoubleArrowIcon className="text-yellow-500 text-4xl relative top-2"/>
         <HygraphLogo size={config.logoSize}/>
-        </div>
+      </div>
     </header>
   )
 }

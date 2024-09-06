@@ -6,7 +6,6 @@ const { google } = require("googleapis");
 import { utils } from "./utils.js";
 import { queries } from "./queries.js";
 import { hygraphAst, transpileDocsAstToHygraphAst } from "./create-ast.js";
-import { resolve } from "path";
 
 const API_KEY = process.env.API_KEY;
 const API_URL = process.env.API_URL;
@@ -23,10 +22,9 @@ const article = {
 };
 
 const auth = new google.auth.GoogleAuth({
-  keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+  credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS),
   scopes: ["https://www.googleapis.com/auth/documents"],
 });
-
 async function readDoc(documentId) {
   return new Promise(async(resolve,reject)=>{
     try {
@@ -34,10 +32,10 @@ async function readDoc(documentId) {
       const resp = await doc.documents.get({ documentId });
       resolve(resp.data);
     } catch (err) {
+      console.log(err);
       resolve({ errors: [{ message: err.errors[0].message }] });
     }
   })
-  
 }
 
 const sendArticle = async (link) => {
@@ -45,11 +43,12 @@ const sendArticle = async (link) => {
     try {
       const docId = link.split('d/')[1].split('/')[0];
       const docData = await readDoc(docId);
-      console.log(docData);
       if(docData.errors){
         resolve(docData);
       }
       transpileDocsAstToHygraphAst(docData.body.content);
+      if(!hygraphAst) reject({errors: [{message: "Error transpiling document"}]});
+
       const imgUriArray = utils.extractImageUris(docData?.inlineObjects);
       const uploadResults = [];
       if(imgUriArray){
@@ -82,5 +81,5 @@ const sendArticle = async (link) => {
 
 
 export { sendArticle, article };
-setInterval(() => {}, 1000000);
+
 
