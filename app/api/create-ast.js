@@ -187,5 +187,5 @@ const transpileDocsAstToHygraphAst = (contentObj) => {
   hygraphAst.ast = createAstFromDocs(remainingObjects);
   return hygraphAst;
 };
-export { transpileSheetAstToHygraphAst, transpileDocsAstToHygraphAst, hygraphAst };
+export { transpileDocsAstToHygraphAst, hygraphAst };
 
