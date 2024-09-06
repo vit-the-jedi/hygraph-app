@@ -1,93 +1,93 @@
 "use strict";
 
-import { parse } from "node-html-parser";
+// import { parse } from "node-html-parser";
 
-const transpileSheetAstToHygraphAst = (contentHTMLStr) => {
+// const transpileSheetAstToHygraphAst = (contentHTMLStr) => {
 
-const root = parse(contentHTMLStr);
-  const children = root.getElementsByTagName("*").map((child) => {
+// const root = parse(contentHTMLStr);
+//   const children = root.getElementsByTagName("*").map((child) => {
 
-    switch (child.tagName.toLowerCase()) {
-      case "h1":
-        return {
-          type: "heading-one",
-          children: [
-            {
-              text: child.text,
-            },
-          ],
-        };
-      case "h2":
-        return {
-          type: "heading-two",
-          children: [
-            {
-              text: child.text,
-            },
-          ],
-        };
-      case "h3":
-        return {
-          type: "heading-three",
-          children: [
-            {
-              text: child.text,
-            },
-          ],
-        };
-      case "h4":
-        return {
-          type: "heading-four",
-          children: [
-            {
-              text: child.text,
-            },
-          ],
-        };
-      case "h5":
-        return {
-          type: "heading-five",
-          children: [
-            {
-              text: child.text,
-            },
-          ],
-        };
-      case "h6":
-        return {
-          type: "heading-six",
-          children: [
-            {
-              text: child.text,
-            },
-          ],
-        };
-      case "p":
-        return {
-          type: "paragraph",
-          children: [
-            {
-              text: child.text,
-            },
-          ],
-        };
-      case "a":
-        return {
-          type: "link",
-          href: child.rawAttributes.href,
-          title: "",
-          openInNewTab: true,
-          children: [
-            {
-              type: "text",
-              text: child.text,
-            },
-          ],
-        };
-    }
-  });
-  return children;
-};
+//     switch (child.tagName.toLowerCase()) {
+//       case "h1":
+//         return {
+//           type: "heading-one",
+//           children: [
+//             {
+//               text: child.text,
+//             },
+//           ],
+//         };
+//       case "h2":
+//         return {
+//           type: "heading-two",
+//           children: [
+//             {
+//               text: child.text,
+//             },
+//           ],
+//         };
+//       case "h3":
+//         return {
+//           type: "heading-three",
+//           children: [
+//             {
+//               text: child.text,
+//             },
+//           ],
+//         };
+//       case "h4":
+//         return {
+//           type: "heading-four",
+//           children: [
+//             {
+//               text: child.text,
+//             },
+//           ],
+//         };
+//       case "h5":
+//         return {
+//           type: "heading-five",
+//           children: [
+//             {
+//               text: child.text,
+//             },
+//           ],
+//         };
+//       case "h6":
+//         return {
+//           type: "heading-six",
+//           children: [
+//             {
+//               text: child.text,
+//             },
+//           ],
+//         };
+//       case "p":
+//         return {
+//           type: "paragraph",
+//           children: [
+//             {
+//               text: child.text,
+//             },
+//           ],
+//         };
+//       case "a":
+//         return {
+//           type: "link",
+//           href: child.rawAttributes.href,
+//           title: "",
+//           openInNewTab: true,
+//           children: [
+//             {
+//               type: "text",
+//               text: child.text,
+//             },
+//           ],
+//         };
+//     }
+//   });
+//   return children;
+// };
 
 const hygraphAst = {
   title: null,
