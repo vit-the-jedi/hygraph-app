@@ -8,6 +8,9 @@ export default function LinkStatusDashboard({articleStatusInfo}){
     event.preventDefault();
     window.location.href = '/';
   }
+  const goToCMSLink = (url) => {
+    window.open('https://studio-us-east-1-shared-usea1-02.hygraph.com/dc387f44-9a95-4765-a5e2-581e6ba87d32/74c032da3f0541dc8c6df0cf670523b0/content/b619711b3d264e0aa7a28714ea8978d1/entry/' + url, '_blank');
+  }  
   const formattedData = articleStatusInfo.map((article, index, arr) => {
     const currentArticle = article[Object.keys(arr[index])[0]];
     return {
@@ -40,7 +43,8 @@ export default function LinkStatusDashboard({articleStatusInfo}){
             {article.result && 
               <div>
                 <p>Result Id: {article.result} </p>
-                <a href={getCompletedContentEntry(article.result)} target="_blank" className="text-yellow-500 underline">View Content Entry</a>
+                <SecondaryButton buttonConfig={{text: "View Article", onClick: goToCMSLink(article.result)}}/>
+                {/* <a href={getCompletedContentEntry(article.result)} target="_blank" className="text-yellow-500 underline">View Content Entry</a> */}
               </div>
             }
 
