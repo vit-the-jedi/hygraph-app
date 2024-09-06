@@ -22,7 +22,7 @@ const article = {
 };
 
 const auth = new google.auth.GoogleAuth({
-  keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+  credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS),
   scopes: ["https://www.googleapis.com/auth/documents"],
 });
 async function readDoc(documentId) {
@@ -36,7 +36,6 @@ async function readDoc(documentId) {
       resolve({ errors: [{ message: err.errors[0].message }] });
     }
   })
-  
 }
 
 const sendArticle = async (link) => {
@@ -82,5 +81,5 @@ const sendArticle = async (link) => {
 
 
 export { sendArticle, article };
-setInterval(() => {}, 1000000);
+
 
