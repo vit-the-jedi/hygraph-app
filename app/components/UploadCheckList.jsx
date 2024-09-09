@@ -3,7 +3,7 @@ import CheckIcon from '@mui/icons-material/Check';
 
 export default function UploadCheckList() {
   return (
-    <aside className="bg-violet-950 pt-3 pb-4 px-3 my-10 rounded-md border-l-4 border-indigo-500">
+    <aside className="bg-indigo-900 pt-3 pb-4 px-3 my-10 rounded-md border-l-4 border-indigo-500">
       <div className='flex'>
         <InfoIcon className="text-2xl text-indigo-500 relative top-1 mr-2" />
         <h2 className="text-2xl mb-1">Checklist</h2>

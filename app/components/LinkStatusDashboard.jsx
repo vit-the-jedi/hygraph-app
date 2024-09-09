@@ -8,9 +8,6 @@ export default function LinkStatusDashboard({articleStatusInfo}){
     event.preventDefault();
     window.location.href = '/';
   }
-  const goToCMSLink = (url) => {
-    window.open('https://studio-us-east-1-shared-usea1-02.hygraph.com/dc387f44-9a95-4765-a5e2-581e6ba87d32/74c032da3f0541dc8c6df0cf670523b0/content/b619711b3d264e0aa7a28714ea8978d1/entry/' + url, '_blank');
-  }  
   const formattedData = articleStatusInfo.map((article, index, arr) => {
     const currentArticle = article[Object.keys(arr[index])[0]];
     return {
@@ -36,7 +33,7 @@ export default function LinkStatusDashboard({articleStatusInfo}){
       <ol>
       {formattedData.map((article) => (
         <li key={article} className="my-3 relative">
-          <div className={`border-2 p-3 rounded-md bg-violet-900 ${article.message ? 'border-rose-500' : 'border-emerald-400'}`}>
+          <div className={`border-2 p-3 rounded-md bg-indigo-900 ${article.message ? 'border-rose-500' : 'border-emerald-400'}`}>
             <h2 className="text-2xl">Article {article.id + 1}</h2>
             <span className={`status-indicator absolute border-1 rounded-full ${article.style} top-2 right-2 text-xs px-1`}>{article.status}</span>
             
@@ -45,7 +42,9 @@ export default function LinkStatusDashboard({articleStatusInfo}){
             {article.result && 
               <div>
                 <p>Result Id: {article.result} </p>
-                <SecondaryButton buttonConfig={{text: "View Article", onClick: goToCMSLink(article.result)}}/>
+                <SecondaryButton buttonConfig={{text: "View Article", onClick: () => {
+                  window.open('https://studio-us-east-1-shared-usea1-02.hygraph.com/dc387f44-9a95-4765-a5e2-581e6ba87d32/74c032da3f0541dc8c6df0cf670523b0/content/b619711b3d264e0aa7a28714ea8978d1/entry/' + article.result, '_blank');
+                }}}/>
                 {/* <a href={getCompletedContentEntry(article.result)} target="_blank" className="text-yellow-500 underline">View Content Entry</a> */}
               </div>
             }
