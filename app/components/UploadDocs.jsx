@@ -1,10 +1,10 @@
 "use client";
 import LinkStatusDashboard from "../components/LinkStatusDashboard.jsx";
 import HelperInfo from "../components/HelperInfo.jsx";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import { useState, useEffect } from "react";
 
-console.log("render");
 
 export default function UploadDocs({ config }) {
   //const { data, error, isLoading } = useSWR(['/api/upload', linkValues ], fetcher);
@@ -28,7 +28,11 @@ export default function UploadDocs({ config }) {
   }, []);
 
   if (isLoading) return <div>
-    <h3 className="text-lg">Loading...</h3>
+    <h3 className="text-lg">
+      <div className="flex align-center justify-center mt-5">
+        <CircularProgress />
+      </div>
+    </h3>
   </div>;
   if (!data) return <div>
     <h3 className="text-lg text-rose-500">Error uploading documents</h3>
