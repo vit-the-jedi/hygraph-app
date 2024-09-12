@@ -13,7 +13,6 @@ export default function UploadDocs({ config }) {
   const [data, setData] = useState(null);
   const [errorMessages, setErrorMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  let fetchCount = 0;
   
   useEffect(() => {
     async function fetchData() {
@@ -23,19 +22,8 @@ export default function UploadDocs({ config }) {
       setData(resJSON);
       setErrorMessages(resJSON.filter((item) => item.errors).map((item) => item.errors));
       setIsLoading(false);
-      sessionStorage.setItem('data', JSON.stringify(resJSON));
-      fetchCount++;
     }
-    if(fetchCount === 0) {
-      console.log('fetching');
-      fetchData();
-    }
-    // } else {
-    //   const storageData = JSON.parse(sessionStorage.getItem('data'));
-    //   setData(storageData);
-    //   setErrorMessages(storageData.filter((item) => item.errors).map((item) => item.errors));
-    //   setIsLoading(false);
-    // }
+    fetchData();
     
   }, []);
 
