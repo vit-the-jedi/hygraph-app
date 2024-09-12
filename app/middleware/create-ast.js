@@ -160,6 +160,13 @@ const createAstFromDocs = (content) => {
     children: ast
   };
 };
+
+
+//this is broken
+//TODO: create array where each entry is a textRun.content
+//recursively match each array entry using regex, and map to intended values
+//ex: find the text run that contains Excerpt: and map to excerpt
+//use .filter
 const transpileDocsAstToHygraphAst = (contentObj) => {
   //expect first element in Docs AST with a paragraph object to be the title
   //check to make sure there is, in fact, text content inside of it
@@ -174,12 +181,13 @@ const transpileDocsAstToHygraphAst = (contentObj) => {
   //expect second element in Docs AST with a paragraph object to be the metadata
   //check to make sure there is, in fact, text content inside of it
   i++;
-  if (contentObj[i].paragraph && contentObj[i].paragraph.elements[0].textRun.content !== "" && contentObj[i].paragraph.elements[0].textRun.content.includes("<meta")) {
+  if (contentObj[i].paragraph && contentObj[i].paragraph.elements[0].textRun.content.match(/[A-Za-z]+\d+/g) && contentObj[i].paragraph.elements[0].textRun.content.includes("<meta")) {
     hygraphAst.metaKeywords = contentObj[i].paragraph.elements[0].textRun.content.replace(/(\r\n|\n|\r)/gm,"");
   }
   i++;
   //expect next to be excerpt
-  if (contentObj[i].paragraph && contentObj[i].paragraph.elements[0].textRun.content !== "") {
+  if (!contentObj[i].paragraph || !contentObj[i].paragraph.elements[0].textRun.content.match(/[A-Za-z]+\d+/g)) {
+    console.log(contentObj[i].paragraph.elements[0].textRun.content);
     hygraphAst.excerpt = contentObj[i].paragraph.elements[0].textRun.content.replace(/(\r\n|\n|\r)/gm,"").replace("Excerpt: ","");
   }
   i++;

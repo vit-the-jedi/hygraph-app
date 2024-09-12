@@ -32,7 +32,6 @@ async function readDoc(documentId) {
       const resp = await doc.documents.get({ documentId });
       resolve(resp.data);
     } catch (err) {
-      console.log(err);
       resolve({ errors: [{ message: err.errors[0].message }] });
     }
   })
@@ -41,11 +40,12 @@ async function readDoc(documentId) {
 const sendArticle = async (link) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const docId = link.split('d/')[1].split('/')[0];
+      const docId = link.split('d/')[1].split('/')[0];    
       const docData = await readDoc(docId);
       if(docData.errors){
         resolve(docData);
       }
+
       transpileDocsAstToHygraphAst(docData.body.content);
       if(!hygraphAst) reject({errors: [{message: "Error transpiling document"}]});
 
@@ -70,11 +70,12 @@ const sendArticle = async (link) => {
       article.excerpt = hygraphAst.excerpt;
       article.content = hygraphAst.ast;
       article.metaKeywords = utils.extractMetaKeywords(hygraphAst.metaKeywords);
-      
+
       const articleCreationResponse = await queries.sendArticle(article);
+
       resolve(articleCreationResponse);
     } catch (err) {
-      reject({errors: [{message: err}]});
+      reject({errors: [{message: err.message ? err.message : err}]});
     }
   });
 };
