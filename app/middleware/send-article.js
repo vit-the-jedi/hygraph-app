@@ -69,10 +69,13 @@ const sendArticle = async (link) => {
       article.date = utils.generateDate();
       article.excerpt = hygraphAst.excerpt;
       article.content = hygraphAst.ast;
-      article.metaKeywords = utils.extractMetaKeywords(hygraphAst.metaKeywords);
+      article.metaKeywords = hygraphAst.metaKeywords;
+      // console.log(article);
+      // setInterval(()=>{
 
+      // },1000000)
       const articleCreationResponse = await queries.sendArticle(article);
-
+ 
       resolve(articleCreationResponse);
     } catch (err) {
       reject({errors: [{message: err.message ? err.message : err}]});

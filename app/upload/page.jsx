@@ -1,3 +1,4 @@
+import { link } from 'fs';
 import Header from '../components/common/Header.jsx';
 import UploadDocs from '../components/UploadDocs.jsx';
 
@@ -6,9 +7,9 @@ export default async function Upload({
   searchParams,
 }) {
   const info = [];
-  let errorMessages = [];
+  let linkValues;
   if(searchParams.docLinks){
-    const linkValues = searchParams.docLinks.split(',');
+    linkValues = searchParams.docLinks.split(',');
 
     linkValues.forEach((link) => {
       info.push({[link]: {
@@ -25,7 +26,7 @@ export default async function Upload({
       <h1 className='text-4xl mb-10 text-center'>Review Your Uploads Below</h1>
         <UploadDocs config={{
           baseURL: process.env.URL,
-          links: ['https://docs.google.com/document/d/18RXNr-4R_EMn2nb_hyWqQoJkhQbaamI2YO9XjqtWBAg/edit']
+          links: linkValues,
         }}/>
       </section>
     </main>

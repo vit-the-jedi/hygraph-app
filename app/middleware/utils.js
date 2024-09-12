@@ -31,12 +31,32 @@ const utils = {
       return null;
     } 
   },
+  extractTitle: (text) => { 
+    const regex = /title:/gmi;
+    try{
+      const m = text.match(regex);
+      if(m) return text.replace(regex,"").replace(/\r?\n|\r/g, " ").trim();
+      else return null;
+    }catch(e){
+      return null;
+    }
+  },
+  extractExcerpt: (text) => {
+    const regex = /excerpt:/gmi;
+    try{
+      const m = text.match(regex);
+      const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").trim();
+      if(m) return t;
+      else return null;
+    }catch(e){
+      return null;
+    }
+  },
   extractMetaKeywords: (metaKeywords) => {
     try{
       const keywords = metaKeywords.match(/content="(.*?)"/);
-      return keywords[1];
+      return keywords[0].replace("content=","").replaceAll('"', "").replace(/\r?\n|\r/g, " ");
     }catch(e){
-      console.log(`No keywords found in document, proceeding...`)
       return null;
     } 
   },

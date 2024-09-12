@@ -10,30 +10,32 @@ export default function UploadDocs({ config }) {
   //const { data, error, isLoading } = useSWR(['/api/upload', linkValues ], fetcher);
   const query = new URLSearchParams({ params: config.links });
   const url = config.baseURL + "/api/upload";
-
   const [data, setData] = useState(null);
   const [errorMessages, setErrorMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  let fetchCount = 0;
   
   useEffect(() => {
-    if(!sessionStorage.getItem('data')){
-      async function fetchData() {
-        setIsLoading(true);
-        const res = await fetch(`${url}?${query.toString()}`);
-        const resJSON = await res.json();
-        setData(resJSON);
-        setErrorMessages(resJSON.filter((item) => item.errors).map((item) => item.errors));
-        setIsLoading(false);
-        sessionStorage.setItem('data', JSON.stringify(resJSON));
-      }
-  
-      fetchData();
-    } else {
-      const storageData = JSON.parse(sessionStorage.getItem('data'));
-      setData(storageData);
-      setErrorMessages(storageData.filter((item) => item.errors).map((item) => item.errors));
+    async function fetchData() {
+      setIsLoading(true);
+      const res = await fetch(`${url}?${query.toString()}`, {cache: "no-store"});
+      const resJSON = await res.json();
+      setData(resJSON);
+      setErrorMessages(resJSON.filter((item) => item.errors).map((item) => item.errors));
       setIsLoading(false);
+      sessionStorage.setItem('data', JSON.stringify(resJSON));
+      fetchCount++;
     }
+    if(fetchCount === 0) {
+      console.log('fetching');
+      fetchData();
+    }
+    // } else {
+    //   const storageData = JSON.parse(sessionStorage.getItem('data'));
+    //   setData(storageData);
+    //   setErrorMessages(storageData.filter((item) => item.errors).map((item) => item.errors));
+    //   setIsLoading(false);
+    // }
     
   }, []);
 
