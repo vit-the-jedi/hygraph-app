@@ -3,20 +3,19 @@
 import PrimaryButton from "./buttons/PrimaryButton";
 import SecondaryButton from "./buttons/SecondaryButton";
 export default function LinkStatusDashboard({articleStatusInfo}){
-
   const goToHome = (event) => {
     event.preventDefault();
+    sessionStorage.clear();
     window.location.href = '/';
   }
   const formattedData = articleStatusInfo.map((article, index, arr) => {
-    const currentArticle = article[Object.keys(arr[index])[0]];
     return {
       id: index,
-      status: currentArticle.status,
-      link: Object.keys(arr[index])[0],
-      message: currentArticle?.message,
-      result: currentArticle?.result, 
-      style: currentArticle.status === 'complete' ? 'bg-emerald-400 border-emerald-400' : 'bg-rose-800 border-rose-800',
+      status: article.status,
+      link: article.url,
+      message: article?.errors,
+      result: article?.result, 
+      style: article.status === 'complete' ? 'bg-emerald-400 border-emerald-400' : 'bg-rose-800 border-rose-800',
     };
   });
 
@@ -33,11 +32,11 @@ export default function LinkStatusDashboard({articleStatusInfo}){
       <ol>
       {formattedData.map((article) => (
         <li key={article} className="my-3 relative">
-          <div className={`border-2 p-3 rounded-md bg-indigo-900 ${article.message ? 'border-rose-500' : 'border-emerald-400'}`}>
+          <div className={`border-2 p-3 rounded-md bg-indigo-900 ${article.status === "error" ? 'border-rose-500' : 'border-emerald-400'}`}>
             <h2 className="text-2xl">Article {article.id + 1}</h2>
             <span className={`status-indicator absolute border-1 rounded-full ${article.style} top-2 right-2 text-xs px-1`}>{article.status}</span>
             
-            {article.message && <p>Message: <span className="text-rose-500">{article.message}</span></p>}
+            {article.status === "error" && <p>Message: <span className="text-rose-500">{article.message[0]}</span></p>}
             
             {article.result && 
               <div>

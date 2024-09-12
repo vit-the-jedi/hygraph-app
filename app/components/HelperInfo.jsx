@@ -2,8 +2,9 @@ import InfoIcon from '@mui/icons-material/Info';
 import AnnouncementIcon from '@mui/icons-material/Announcement';
 
 export default function HelperInfo({errors}) {
+  console.log(errors);
   const errorHelpers = new Map();
-  errorHelpers.set('value is not unique for the field "urlSlug"', 'There is already an existing article with that title. Change the title of the article and try again.');
+  errorHelpers.set('value is not unique for the field "urlSlug"', 'There is already an existing article with that title. Change the title of the article, or check to see if this article has already been uploaded.');
   errorHelpers.set('Field "ArticleCreateInput.someField" of required type "SomeType!" was not provided.', 'Your article is missing a required field. Ensure you have a Title, Meta Keywords, Excerpt, and Cover Image in the article and try again.');
   errorHelpers.set('The caller does not have permission', 'You must add googledocs@just-site-330115.iam.gserviceaccount.com as an editor on the article.');
   errorHelpers.set('Error transpiling document', 'The document is malformed. Ensure the document contains 1 article, with a title, meta keywords, excerpt, and cover image.');
@@ -18,7 +19,7 @@ export default function HelperInfo({errors}) {
         <h2 className="text-2xl mb-1">Error Status Tips</h2>
       </div>
       <ul className='ml-7'>
-      {errors.map((item, index) => (
+      {errors.flat().map((item, index) => (
         <li key={index}>
           <div className="my-3">
             <div className='flex'>
