@@ -2,6 +2,7 @@
 import LinkStatusDashboard from "../components/LinkStatusDashboard.jsx";
 import HelperInfo from "../components/HelperInfo.jsx";
 import CircularProgress from "@mui/material/CircularProgress";
+import ErrorIcon from '@mui/icons-material/Error';
 
 import { useState, useEffect } from "react";
 
@@ -34,9 +35,11 @@ export default function UploadDocs({ config }) {
       </div>
     </h3>
   </div>;
-  if (!data) return <div>
-    <h3 className="text-lg text-rose-500">Error uploading documents</h3>
-    </div>;
+  if (!data) return 
+  <div className="flex align-center justify-center mt-5">
+    <ErrorIcon />
+    <h3 className="text-lg text-rose-500">Error Uploading Documents</h3>
+</div>
   if(!isLoading) return (
     <div>
       <div>
