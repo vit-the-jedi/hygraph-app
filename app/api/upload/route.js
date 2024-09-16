@@ -11,9 +11,9 @@ export async function GET(request) {
     resObj.article = result.article;
     resObj.url = link;
 
-    const hygraphRespErrors = result.hygraphResp?.errors;
+    const hygraphRespErrors = result?.hygraphResp?.errors;
 
-    if (hygraphRespErrors.length > 0) {
+    if (hygraphRespErrors && hygraphRespErrors.length > 0) {
       resObj.status = "error";
       resObj.errors = [];
       hygraphRespErrors.forEach((error) => {
