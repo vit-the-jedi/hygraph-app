@@ -8,17 +8,21 @@ export async function GET(request) {
   for (const link of linkValues) {
     const result = await sendArticle(link);
     const resObj = {};
+    resObj.article = result.article;
     resObj.url = link;
-    if (result?.errors?.length > 0) {
+
+    const hygraphRespErrors = result?.hygraphResp?.errors;
+
+    if (hygraphRespErrors && hygraphRespErrors.length > 0) {
       resObj.status = "error";
       resObj.errors = [];
-      result.errors.forEach((error) => {
+      hygraphRespErrors.forEach((error) => {
         resObj.errors.push(error.message);
       });
       resObj.result = null;
     } else {
       resObj.status = "complete";
-      resObj.result = result.data.createArticle.id;
+      resObj.result = result.hygraphResp?.data?.createArticle?.id;
     }
     info.push(resObj);
     i++;

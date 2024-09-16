@@ -19,7 +19,7 @@ const utils = {
       const slug = trimmed.join("-");
       return slug;
     } catch (error) {
-      console.log(`Error geenrating slug: ${error}`);
+      console.log(`Error genrating slug: ${error}`);
       return null;
     }
   },

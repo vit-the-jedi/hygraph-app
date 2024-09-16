@@ -45,7 +45,6 @@ const sendArticle = async (link) => {
       if(docData.errors){
         resolve(docData);
       }
-
       transpileDocsAstToHygraphAst(docData.body.content);
       if(!hygraphAst) reject({errors: [{message: "Error transpiling document"}]});
 
@@ -70,13 +69,12 @@ const sendArticle = async (link) => {
       article.excerpt = hygraphAst.excerpt;
       article.content = hygraphAst.ast;
       article.metaKeywords = hygraphAst.metaKeywords;
-      // console.log(article);
-      // setInterval(()=>{
-
-      // },1000000)
       const articleCreationResponse = await queries.sendArticle(article);
- 
-      resolve(articleCreationResponse);
+      const resp = {
+        article: article,
+        hygraphResp: articleCreationResponse,
+      }
+      resolve(resp);
     } catch (err) {
       reject({errors: [{message: err.message ? err.message : err}]});
     }
