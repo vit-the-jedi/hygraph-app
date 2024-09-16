@@ -26,7 +26,9 @@ export default function HelperInfo({errors}) {
               <AnnouncementIcon className="text-red-500 relative top-1 mr-2 text-lg" />
               <p className="text-red-500 pb-2">{item}</p>
               </div>
-            <p className='ml-1'>{errorHelpers.get(item)}</p>
+            <p className='ml-1'>
+              <span id={`error-${index}`}>{errorHelpers.get(item)}</span>
+            </p>
           </div>        
         </li> 
       ))}

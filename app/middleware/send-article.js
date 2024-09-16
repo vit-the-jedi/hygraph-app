@@ -21,6 +21,8 @@ const article = {
   articleType: 'article',
 };
 
+console.log(article);
+
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS),
   scopes: ["https://www.googleapis.com/auth/documents"],
@@ -45,7 +47,7 @@ const sendArticle = async (link) => {
       if(docData.errors){
         resolve(docData);
       }
-
+      console.log("docData", docData);
       transpileDocsAstToHygraphAst(docData.body.content);
       if(!hygraphAst) reject({errors: [{message: "Error transpiling document"}]});
 
@@ -71,12 +73,13 @@ const sendArticle = async (link) => {
       article.content = hygraphAst.ast;
       article.metaKeywords = hygraphAst.metaKeywords;
       console.log(article);
-      // setInterval(()=>{
-
-      // },1000000)
       const articleCreationResponse = await queries.sendArticle(article);
- 
-      resolve(articleCreationResponse);
+      const resp = {
+        article: article,
+        hygraphResp: articleCreationResponse,
+      }
+      resolve(resp);
+      //resolve(articleCreationResponse);
     } catch (err) {
       reject({errors: [{message: err.message ? err.message : err}]});
     }

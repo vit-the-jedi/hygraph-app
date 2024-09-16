@@ -3,9 +3,9 @@ import LinkStatusDashboard from "../components/LinkStatusDashboard.jsx";
 import HelperInfo from "../components/HelperInfo.jsx";
 import CircularProgress from "@mui/material/CircularProgress";
 import ErrorIcon from '@mui/icons-material/Error';
+import PrimaryButton from "./buttons/PrimaryButton";
 
 import { useState, useEffect } from "react";
-
 
 export default function UploadDocs({ config }) {
   //const { data, error, isLoading } = useSWR(['/api/upload', linkValues ], fetcher);
@@ -14,6 +14,14 @@ export default function UploadDocs({ config }) {
   const [data, setData] = useState(null);
   const [errorMessages, setErrorMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const goToHome = (event) => {
+    event.preventDefault();
+    setIsLoading(true);
+    setData(null);
+    setErrorMessages([]);
+    window.location.href = '/';
+  }
   
   useEffect(() => {
     async function fetchData() {
@@ -21,6 +29,7 @@ export default function UploadDocs({ config }) {
       setIsLoading(true);
       const res = await fetch(`${url}?${query.toString()}`, {cache: "no-store"});
       const resJSON = await res.json();
+      console.log(`SERIALIZED RESULT:`, (resJSON));
       setData(resJSON);
       setErrorMessages(resJSON.filter((item) => item.errors).map((item) => item.errors));
       setIsLoading(false);
@@ -42,6 +51,9 @@ export default function UploadDocs({ config }) {
 </div>
   if(!isLoading) return (
     <div>
+      <div className="flex align-center justify-center">
+        <PrimaryButton buttonConfig={{text:"Go Home", onClick: goToHome}} />
+      </div>
       <div>
         <LinkStatusDashboard articleStatusInfo={data} />
         {errorMessages.length > 0 && <HelperInfo errors={errorMessages} />}
