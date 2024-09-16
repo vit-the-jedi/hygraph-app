@@ -5,21 +5,23 @@ const require = createRequire(import.meta.url);
 const { google } = require("googleapis");
 import { utils } from "./utils.js";
 import { queries } from "./queries.js";
-import { hygraphAst, transpileDocsAstToHygraphAst } from "./create-ast.js";
+import { transpileDocsAstToHygraphAst } from "./create-ast.js";
 
 const API_KEY = process.env.API_KEY;
 const API_URL = process.env.API_URL;
 
-const article = {
-  title: null,
-  urlSlug: null,
-  date: null,
-  excerpt: null,
-  content: null,
-  metaKeywords: null,
-  coverImage: null,
-  articleType: 'article',
-};
+class Article {
+  constructor(){
+    this.title= null;
+    this.urlSlug= null;
+    this.date= null;
+    this.excerpt= null;
+    this.content= null;
+    this.metaKeywords= null;
+    this.coverImage= null;
+    this.articleType= 'article';
+  }
+}
 
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS),
@@ -40,12 +42,13 @@ async function readDoc(documentId) {
 const sendArticle = async (link) => {
   return new Promise(async (resolve, reject) => {
     try {
+      const article = new Article();
       const docId = link.split('d/')[1].split('/')[0];    
       const docData = await readDoc(docId);
       if(docData.errors){
         resolve(docData);
       }
-      transpileDocsAstToHygraphAst(docData.body.content);
+      const hygraphAst = transpileDocsAstToHygraphAst(docData.body.content);
       if(!hygraphAst) reject({errors: [{message: "Error transpiling document"}]});
 
       const imgUriArray = utils.extractImageUris(docData?.inlineObjects);
@@ -62,7 +65,6 @@ const sendArticle = async (link) => {
           article.articleCardIcon = {connect: {id: `${uploadResults[2].data.createAsset.id}`}};
         }
       }
-
       article.title = hygraphAst.title;
       article.urlSlug = utils.generateSlug(hygraphAst.title);
       article.date = utils.generateDate();
@@ -74,6 +76,7 @@ const sendArticle = async (link) => {
         article: article,
         hygraphResp: articleCreationResponse,
       }
+      console.log(`ARTICLE INSIDE:`, (article));
       resolve(resp);
     } catch (err) {
       reject({errors: [{message: err.message ? err.message : err}]});
@@ -81,7 +84,6 @@ const sendArticle = async (link) => {
   });
 };
 
-
-export { sendArticle, article };
+export { sendArticle, Article};
 
 
