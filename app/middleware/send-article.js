@@ -70,7 +70,7 @@ const sendArticle = async (link) => {
       article.excerpt = hygraphAst.excerpt;
       article.content = hygraphAst.ast;
       article.metaKeywords = hygraphAst.metaKeywords;
-      // console.log(article);
+      console.log(article);
       // setInterval(()=>{
 
       // },1000000)

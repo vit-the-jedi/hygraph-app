@@ -16,6 +16,7 @@ export default function UploadDocs({ config }) {
   
   useEffect(() => {
     async function fetchData() {
+      console.log("fetching data");
       setIsLoading(true);
       const res = await fetch(`${url}?${query.toString()}`, {cache: "no-store"});
       const resJSON = await res.json();
@@ -24,7 +25,6 @@ export default function UploadDocs({ config }) {
       setIsLoading(false);
     }
     fetchData();
-    
   }, []);
 
   if (isLoading) return <div>

@@ -117,7 +117,6 @@ const createHeadingName = (namedStyleType) => {
 };
 const createAstFromDocs = (content) => {
   const ast = [];
-  console.log(content);
   content.forEach((element, index, arr) => {
     const elementContentText = element?.textRun?.content.replace(
       /(\r\n|\n|\r)/gm,
@@ -160,8 +159,6 @@ const createAstFromDocs = (content) => {
           prevElChildren.push(linkReturnObj);
         }else if(isPeriod){
           prevElChildren[prevElChildren.length - 1].children[0].text += ".";
-          console.log(ast[ast.length - 1].children[0].text);
-          console.log(prevElChildren[prevElChildren.length - 1].children[0].text);
         }
       }
     }
