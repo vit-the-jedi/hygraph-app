@@ -90,13 +90,6 @@ import { utils } from "./utils.js";
 //   return children;
 // };
 
-const hygraphAst = {
-  title: null,
-  metaKeywords: null,
-  ast: [],
-  excerpt: null,
-};
-
 const createHeadingName = (namedStyleType) => {
   switch (namedStyleType) {
     case "HEADING_1":
@@ -170,6 +163,7 @@ const createAstFromDocs = (content) => {
 };
 
 const transpileDocsAstToHygraphAst = (contentObj) => {
+  const hygraphAst = new HygraphAst();
   const remainingObjects = [];
   contentObj.forEach((element, outerIndex, arr) => {
     if (element.paragraph && element.paragraph.elements) {
@@ -205,4 +199,13 @@ const transpileDocsAstToHygraphAst = (contentObj) => {
   return hygraphAst;
 };
 
-export { transpileDocsAstToHygraphAst, hygraphAst };
+class HygraphAst {
+  constructor() {
+    this.title = null;
+    this.metaKeywords = null;
+    this.ast = [];
+    this.excerpt = null;
+  }
+}
+
+export { transpileDocsAstToHygraphAst, HygraphAst};

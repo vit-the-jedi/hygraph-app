@@ -23,7 +23,6 @@ export default function DocLinkForm() {
     console.log(input);
     inputs.splice(inputs.indexOf(input),1);
     setInputs((prevInputs) => Array.from(inputs));
-    console.log(inputs);
   };
   const saveDocLinksAndRedirect = (e) => {
     e.preventDefault();
@@ -33,10 +32,10 @@ export default function DocLinkForm() {
   }
   return (
     <form className="grid my-3">
-        {inputs.map((input) => (
-          <div key={input.id} className="flex m-3 relative">
+        {inputs.map((input, i, arr) => (
+          <div key={i} className="flex m-3 relative">
           <input
-            key={input.id}
+            key={i}
             type="text"
             placeholder="Paste Google Doc Link"
             value={input.value}

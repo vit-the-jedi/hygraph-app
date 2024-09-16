@@ -29,8 +29,8 @@ export default function LinkStatusDashboard({articleStatusInfo}){
   return (
     <section>
       <ol>
-      {formattedData.map((article) => (
-        <li key={article} className="my-3 relative">
+      {formattedData.map((article, i, arr) => (
+        <li key={i} className="my-3 relative">
           <div className={`border-2 p-3 rounded-md bg-indigo-900 ${article.status === "error" ? 'border-rose-500' : 'border-emerald-400'}`}>
             <h3 className="mb-5 text-1xl">Entry {article.id + 1}</h3>
             <h2 className="text-2xl pb-1">Title: {article.articleData.title}</h2>

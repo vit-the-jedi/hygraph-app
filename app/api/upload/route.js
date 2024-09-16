@@ -10,6 +10,7 @@ export async function GET(request) {
     const resObj = {};
     resObj.article = result.article;
     resObj.url = link;
+    resObj.id = i;
 
     const hygraphRespErrors = result?.hygraphResp?.errors;
 
@@ -25,6 +26,7 @@ export async function GET(request) {
       resObj.result = result.hygraphResp?.data?.createArticle?.id;
     }
     info.push(resObj);
+    //console.log(info);
     i++;
   }
   return new Response(JSON.stringify(info,), {
