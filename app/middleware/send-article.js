@@ -21,8 +21,6 @@ const article = {
   articleType: 'article',
 };
 
-console.log(article);
-
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS),
   scopes: ["https://www.googleapis.com/auth/documents"],
@@ -77,7 +75,6 @@ const sendArticle = async (link) => {
         hygraphResp: articleCreationResponse,
       }
       resolve(resp);
-      //resolve(articleCreationResponse);
     } catch (err) {
       reject({errors: [{message: err.message ? err.message : err}]});
     }
