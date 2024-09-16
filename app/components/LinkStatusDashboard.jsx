@@ -41,9 +41,9 @@ export default function LinkStatusDashboard({articleStatusInfo}){
             {article.result && 
               <div>
                 <p>Result Id: {article.result} </p>
-                {/* <SecondaryButton buttonConfig={{text: "View Article", onClick: () => {
+                <SecondaryButton buttonConfig={{text: "View Article", onClick: () => {
                   window.open('https://studio-us-east-1-shared-usea1-02.hygraph.com/dc387f44-9a95-4765-a5e2-581e6ba87d32/74c032da3f0541dc8c6df0cf670523b0/content/b619711b3d264e0aa7a28714ea8978d1/entry/' + article.result, '_blank');
-                }}}/> */}
+                }}}/>
               </div>
             }
 
