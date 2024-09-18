@@ -32,8 +32,7 @@ export default function DocLinkForm() {
     e.preventDefault();
     const docLinks = Object.values(inputs).map(input => input.value);
     const query = new URLSearchParams({ docLinks, brand: select });
-    console.log(query.toString());
-    // router.push(`/upload?${query.toString()}`);
+    router.push(`/upload?${query.toString()}`);
   }
   return (
     <form className="grid my-3">

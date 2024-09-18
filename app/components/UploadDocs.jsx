@@ -8,8 +8,7 @@ import PrimaryButton from "./buttons/PrimaryButton";
 import { useState, useEffect } from "react";
 
 export default function UploadDocs({ config }) {
-  //const { data, error, isLoading } = useSWR(['/api/upload', linkValues ], fetcher);
-  const query = new URLSearchParams({ params: config.links });
+  const query = new URLSearchParams({ params: config.links, brand: config.brand });
   const url = config.baseURL + "/api/upload";
   const [data, setData] = useState(null);
   const [errorMessages, setErrorMessages] = useState([]);
