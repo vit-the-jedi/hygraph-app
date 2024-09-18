@@ -1,19 +1,26 @@
 "use strict";
-import { article } from "./send-article.js";
-const API_KEY =
-  "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImdjbXMtbWFpbi1wcm9kdWN0aW9uIn0.eyJ2ZXJzaW9uIjozLCJpYXQiOjE3MjQwODU1MTEsImF1ZCI6WyJodHRwczovL2FwaS11cy1lYXN0LTEtc2hhcmVkLXVzZWExLTAyLmh5Z3JhcGguY29tL3YyL2Nsd3p5ZnNkbDAya2cwN3c4dm9icDMyancvbWFzdGVyIiwibWFuYWdlbWVudC1uZXh0LmdyYXBoY21zLmNvbSJdLCJpc3MiOiJodHRwczovL21hbmFnZW1lbnQtdXMtZWFzdC0xLXNoYXJlZC11c2VhMS0wMi5oeWdyYXBoLmNvbS8iLCJzdWIiOiJmNTI1MTk5OS0yNjFmLTQ0MDQtODcwMy0xZWMxMTVmOWI5YzUiLCJqdGkiOiJjbTAxN3p5ZTUwd2s2MDdrM2cxMmcxNXBuIn0.souiHUzlR8glcjEQNucTo2wcNP3Dvpeo22RmkxHp3YpTQtU2F52pXqAA3aRjHXVYpZPRaXrmfFVpSlV78mTHh8yo99SBwcBwbuCnlUxZJ1O5OGNTaWFeiaU8D_0cTBLW6D8XMqGvrhNsrZrbFY-D-Kk-78vij-liYyBMSXfi4FjQmeUaipZrCzaEKpZuB-CDWj3MjSVes45DGiLL79up2HjcssZeVD4H-M3g3AWYR5qTb45urmQQ3V9vgv5nM0f1hqfsczQmYyZu1-TRSC4VfdjqAPfCnnwa_LgSpkDVZHxBRz4yMYoRBVs6bv-wxb4x_UvSHHO751i1vtQGSYRkn8D9PloAOPtDoJSz6AdnJCk5OUuyPTcrvyKcG35Cu9kwh6wjtRSgNPAkR-8O_NjzqLW16BWgXkCPH1vppSJorRy_Z8lnrRlx8N1DvGVzvj7UGKMvRfaw2SN58jQprAU28TZuB8Ll22P3Clie46mQf8mroEqto5VtQpN0JL17aBTtm08119Tng_PGP6Ddw_afI7dni2p8kCLmhZkkn4_d_7SDl2LAAezVQD4U0EIjZcnUY1ibxJBR7EVoo6SdJz7er34R3jMXgpROtbBdyvTUkxDt-nstYGkGs0LuHnciskM06QjEaP3E0cMLHvD-KEB5wSFvrSaeERVXpT5MKQXqLKI";
-const API_URL =
-  "https://api-us-east-1-shared-usea1-02.hygraph.com/v2/clwzyfsdl02kg07w8vobp32jw/master";
+
+const apiKeyMap = {
+  "0": {
+    key: process.env.FHP_API_KEY,
+    url: process.env.FHP_API_URL,
+  },
+  "1": {
+    key: process.env.PROTECT_API_KEY,
+    url: process.env.PROTECT_API_URL,
+  },
+}
+
 
 const queries = {
-  uploadImage: async function (uri){
+  uploadImage: async function (uri, brand){
   return new Promise(async(resolve, reject)=>{
     try{
-      const response = await fetch(API_URL, {
+      const response = await fetch(apiKeyMap[brand].url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${API_KEY}`,
+          //Authorization: `Bearer ${apiKeyMap[brand].key}`,
         },
         body: JSON.stringify({
           query: `mutation uploadArticleImage{
@@ -34,7 +41,7 @@ const queries = {
     }
   });
   },
-  sendArticle: async function(article){
+  sendArticle: async function(article, brand){
     const query = `mutation createArticle($article: ArticleCreateInput!){
                     createArticle(data: $article)
                       {
@@ -43,11 +50,11 @@ const queries = {
                     }`;
     return new Promise(async(resolve, reject)=>{
       try{
-        const response = await fetch(API_URL, {
+        const response = await fetch(apiKeyMap[brand].url, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${API_KEY}`,
+            //Authorization: `Bearer ${apiKeyMap[brand].key}`,
           },
           body: JSON.stringify({ 
             query: query,

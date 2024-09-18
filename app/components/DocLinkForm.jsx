@@ -7,12 +7,16 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
 export default function DocLinkForm() {
   const [inputs, setInputs] = useState([{ id: 1, value: '' }]);
+  const [select, updateSelect] = useState('0');
   const router = useRouter();
 
   const handleInputChange = (id, value) => {
     setInputs((prevInputs) =>
       prevInputs.map((input) => (input.id === id ? { ...input, value } : input))
     );
+  };
+  const handleSelectChange = (id, value) => {
+    updateSelect(() => value);
   };
   const addInput = () => {
     const newId = inputs.length > 0 ? Math.max(...inputs.map((input) => input.id)) + 1 : 1;
@@ -27,11 +31,18 @@ export default function DocLinkForm() {
   const saveDocLinksAndRedirect = (e) => {
     e.preventDefault();
     const docLinks = Object.values(inputs).map(input => input.value);
-    const query = new URLSearchParams({ docLinks });
+    const query = new URLSearchParams({ docLinks, brand: select });
     router.push(`/upload?${query.toString()}`);
   }
   return (
     <form className="grid my-3">
+        <div className="m-3">
+          <select id="brand-picker" className="w-full border p-2 border-gray-300 text-gray-900 rounded-md" 
+          onChange={(e) => handleSelectChange(select.id, e.target.value)}>
+            <option value='0'>Find Home Pros</option>
+            <option value='1'>Protect</option>
+          </select>
+        </div>
         {inputs.map((input, i, arr) => (
           <div key={i} className="flex m-3 relative">
           <input

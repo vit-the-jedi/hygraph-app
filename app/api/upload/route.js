@@ -4,9 +4,11 @@ export async function GET(request) {
   //must pass back an array here
   let info = [];
   const linkValues = request.nextUrl.searchParams.get("params").split(",");
+  const brand = request.nextUrl.searchParams.get("brand");
+  console.log(request.nextUrl);
   let i = 0;
   for (const link of linkValues) {
-    const result = await sendArticle(link);
+    const result = await sendArticle(link, brand);
     const resObj = {};
     resObj.article = result.article;
     resObj.url = link;
@@ -26,7 +28,6 @@ export async function GET(request) {
       resObj.result = result.hygraphResp?.data?.createArticle?.id;
     }
     info.push(resObj);
-    //console.log(info);
     i++;
   }
   return new Response(JSON.stringify(info,), {

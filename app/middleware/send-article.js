@@ -7,9 +7,6 @@ import { utils } from "./utils.js";
 import { queries } from "./queries.js";
 import { transpileDocsAstToHygraphAst } from "./create-ast.js";
 
-const API_KEY = process.env.API_KEY;
-const API_URL = process.env.API_URL;
-
 class Article {
   constructor(){
     this.title= null;
@@ -39,7 +36,8 @@ async function readDoc(documentId) {
   })
 }
 
-const sendArticle = async (link) => {
+const sendArticle = async (link, brand) => {
+  console.log('brand', brand)
   return new Promise(async (resolve, reject) => {
     try {
       const article = new Article();
@@ -55,7 +53,7 @@ const sendArticle = async (link) => {
       const uploadResults = [];
       if(imgUriArray){
         for (const imgUri of imgUriArray) {
-          uploadResults.push(await queries.uploadImage(imgUri));
+          uploadResults.push(await queries.uploadImage(imgUri, brand));
         }
         article.coverImage = {connect: {id: `${uploadResults[0].data.createAsset.id}`}};
         if (uploadResults[1]) {
@@ -71,7 +69,7 @@ const sendArticle = async (link) => {
       article.excerpt = hygraphAst.excerpt;
       article.content = hygraphAst.ast;
       article.metaKeywords = hygraphAst.metaKeywords;
-      const articleCreationResponse = await queries.sendArticle(article);
+      const articleCreationResponse = await queries.sendArticle(article, brand);
       const resp = {
         article: article,
         hygraphResp: articleCreationResponse,
