@@ -36,6 +36,7 @@ export default function UploadDocs({ config }) {
     fetchData();
   }, []);
 
+
   if (isLoading) return <div>
     <h3 className="text-lg">
       <div className="flex align-center justify-center mt-5">

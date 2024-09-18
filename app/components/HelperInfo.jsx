@@ -10,7 +10,8 @@ export default function HelperInfo({errors}) {
   errorHelpers.set('Error transpiling document', 'The document is malformed. Ensure the document contains 1 article, with a title, meta keywords, excerpt, and cover image.');
   errorHelpers.set('Only alphanumeric characters and dashes (-) allowed, no spaces.', 'There was an issue generating a url slug, this can happen because the document is malformed.');
   errorHelpers.set('Expected value to have between 1 and 300 characters.', 'There was an issue locating an excerpt, this can happen because the document is malformed.');
-
+  errorHelpers.set('Mutation failed due to permission errors', 'There was an issue uploading an image asset due to permission errors in Hygraph. Update permissions to allow asset creation and try again.');
+  errorHelpers.set('Error uploading image(s)', 'There was an issue uploading an image asset. Ensure the image is a valid format and try again.');
 
   return (
     <aside className="bg-indigo-900 pt-3 pb-4 px-3 my-10 rounded-md border-l-4 border-indigo-500">

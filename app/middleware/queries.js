@@ -29,7 +29,8 @@ const queries = {
                     uploadUrl:"${uri}"
                   }
                 ) {
-                  id
+                  id,
+                  size
                 }
               }`,
         }),
