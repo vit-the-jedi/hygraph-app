@@ -59,16 +59,27 @@ const sendArticle = async (link, brand) => {
       if (imgUriArray) {
         for (const imgUri of imgUriArray) {
           const imgUploadResult = await queries.uploadImage("skeee", brand);
-          if(imgUploadResult.errors) uploadErrors.push(error);
+          //check if hygraph sent back an error
+          if(imgUploadResult.errors) uploadErrors = imgUploadResult.errors.map((e)=>e);
           else uploadResults.push(imgUploadResult);
         }
-        uploadErrors = uploadResults.filter((result) => {
-          console.log(`yoooo`,(result));
-          if (result.message || result.data.createAsset.size === null) {
-            return result;
-          }
-        });
-        console.log(`errors`,uploadErrors[0].data.createAsset);
+        if(uploadErrors?.length > 0){
+          const moreErrors = uploadResults.filter((result) => {
+            console.log(`yoooo`,(result));
+            if (result.message || result.data.createAsset.size === null) {
+              return result;
+            }
+          });
+          moreErrors.forEach((e) => uploadErrors.push(e));  
+        }else {
+          //hygraph doesn't throw an error for incorrect image formats, so we need to check for that here
+          uploadErrors = uploadResults.filter((result) => {
+            if (result.message || result.data.createAsset.size === null) {
+              return result;
+            }
+          });
+        }
+        //if no errors, continue on with the article creation
         if (!uploadErrors) {
           article.coverImage = {
             connect: { id: `${uploadResults[0].data.createAsset.id}` },
@@ -93,6 +104,7 @@ const sendArticle = async (link, brand) => {
       article.metaKeywords = hygraphAst.metaKeywords;
 
       //if there was an error creating the assets, return with an error
+      //should find a way to do this earlier and save computation
       if(uploadErrors) {
         resp.hygraphResp = {};
         resp.hygraphResp.errors = uploadErrors.map((e) => {
@@ -104,6 +116,7 @@ const sendArticle = async (link, brand) => {
       }
       resolve(resp);
     } catch (err) {
+      console.log(err);
       reject({ errors: [{ message: err.message ? err.message : err }] });
     }
   });
