@@ -8,15 +8,15 @@ import { queries } from "./queries.js";
 import { transpileDocsAstToHygraphAst } from "./create-ast.js";
 
 class Article {
-  constructor(){
-    this.title= null;
-    this.urlSlug= null;
-    this.date= null;
-    this.excerpt= null;
-    this.content= null;
-    this.metaKeywords= null;
-    this.coverImage= null;
-    this.articleType= 'article';
+  constructor() {
+    this.title = null;
+    this.urlSlug = null;
+    this.date = null;
+    this.excerpt = null;
+    this.content = null;
+    this.metaKeywords = null;
+    this.coverImage = null;
+    this.articleType = "article";
   }
 }
 
@@ -25,7 +25,7 @@ const auth = new google.auth.GoogleAuth({
   scopes: ["https://www.googleapis.com/auth/documents"],
 });
 async function readDoc(documentId) {
-  return new Promise(async(resolve,reject)=>{
+  return new Promise(async (resolve, reject) => {
     try {
       const doc = google.docs({ version: "v1", auth });
       const resp = await doc.documents.get({ documentId });
@@ -33,34 +33,67 @@ async function readDoc(documentId) {
     } catch (err) {
       resolve({ errors: [{ message: err.errors[0].message }] });
     }
-  })
+  });
 }
 
 const sendArticle = async (link, brand) => {
-  console.log('brand', brand)
   return new Promise(async (resolve, reject) => {
     try {
       const article = new Article();
-      const docId = link.split('d/')[1].split('/')[0];    
+      const resp = {
+        article: article,
+        hygraphResp: null,
+      };
+      const docId = link.split("d/")[1].split("/")[0];
       const docData = await readDoc(docId);
-      if(docData.errors){
+      if (docData.errors) {
         resolve(docData);
       }
       const hygraphAst = transpileDocsAstToHygraphAst(docData.body.content);
-      if(!hygraphAst) reject({errors: [{message: "Error transpiling document"}]});
+      if (!hygraphAst)
+        reject({ errors: [{ message: "Error transpiling document" }] });
 
       const imgUriArray = utils.extractImageUris(docData?.inlineObjects);
       const uploadResults = [];
-      if(imgUriArray){
+      let uploadErrors;
+      if (imgUriArray) {
         for (const imgUri of imgUriArray) {
-          uploadResults.push(await queries.uploadImage(imgUri, brand));
+          const imgUploadResult = await queries.uploadImage("skeee", brand);
+          //check if hygraph sent back an error
+          if(imgUploadResult.errors) uploadErrors = imgUploadResult.errors.map((e)=>e);
+          else uploadResults.push(imgUploadResult);
         }
-        article.coverImage = {connect: {id: `${uploadResults[0].data.createAsset.id}`}};
-        if (uploadResults[1]) {
-          article.secondaryImage = {connect: {id: `${uploadResults[1].data.createAsset.id}`}};
+        if(uploadErrors?.length > 0){
+          const moreErrors = uploadResults.filter((result) => {
+            console.log(`yoooo`,(result));
+            if (result.message || result.data.createAsset.size === null) {
+              return result;
+            }
+          });
+          moreErrors.forEach((e) => uploadErrors.push(e));  
+        }else {
+          //hygraph doesn't throw an error for incorrect image formats, so we need to check for that here
+          uploadErrors = uploadResults.filter((result) => {
+            if (result.message || result.data.createAsset.size === null) {
+              return result;
+            }
+          });
         }
-        if (uploadResults[2]) {
-          article.articleCardIcon = {connect: {id: `${uploadResults[2].data.createAsset.id}`}};
+        //if no errors, continue on with the article creation
+        if (!uploadErrors) {
+          article.coverImage = {
+            connect: { id: `${uploadResults[0].data.createAsset.id}` },
+          };
+          if (uploadResults[1]) {
+            article.secondaryImage = {
+              connect: { id: `${uploadResults[1].data.createAsset.id}` },
+            };
+          }
+          if (uploadResults[2]) {
+            article.articleCardIcon = {
+              connect: { id: `${uploadResults[2].data.createAsset.id}` },
+            };
+          }
         }
       }
       article.title = hygraphAst.title;
@@ -69,19 +102,24 @@ const sendArticle = async (link, brand) => {
       article.excerpt = hygraphAst.excerpt;
       article.content = hygraphAst.ast;
       article.metaKeywords = hygraphAst.metaKeywords;
-      const articleCreationResponse = await queries.sendArticle(article, brand);
-      const resp = {
-        article: article,
-        hygraphResp: articleCreationResponse,
+
+      //if there was an error creating the assets, return with an error
+      //should find a way to do this earlier and save computation
+      if(uploadErrors) {
+        resp.hygraphResp = {};
+        resp.hygraphResp.errors = uploadErrors.map((e) => {
+          return { message: e.message ? e.message : "Error uploading image(s)" };
+        });
+      }else {
+        const articleCreationResponse = await queries.sendArticle(article, brand);
+        resp.hygraphResp = articleCreationResponse;
       }
-      console.log(`ARTICLE INSIDE:`, (article));
       resolve(resp);
     } catch (err) {
-      reject({errors: [{message: err.message ? err.message : err}]});
+      console.log(err);
+      reject({ errors: [{ message: err.message ? err.message : err }] });
     }
   });
 };
 
-export { sendArticle, Article};
-
-
+export { sendArticle, Article };
