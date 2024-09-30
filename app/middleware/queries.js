@@ -14,6 +14,7 @@ const apiKeyMap = {
 
 const queries = {
   uploadImage: async function (uri, brand){
+    console.log('URI ' + uri);
   return new Promise(async(resolve, reject)=>{
     try{
       const response = await fetch(apiKeyMap[brand].url, {
@@ -30,7 +31,7 @@ const queries = {
                   }
                 ) {
                   id,
-                  size
+                  url
                 }
               }`,
         }),

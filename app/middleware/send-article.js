@@ -58,15 +58,14 @@ const sendArticle = async (link, brand) => {
       let uploadErrors;
       if (imgUriArray) {
         for (const imgUri of imgUriArray) {
-          const imgUploadResult = await queries.uploadImage("skeee", brand);
+          const imgUploadResult = await queries.uploadImage(imgUri, brand);
           //check if hygraph sent back an error
           if(imgUploadResult.errors) uploadErrors = imgUploadResult.errors.map((e)=>e);
           else uploadResults.push(imgUploadResult);
         }
         if(uploadErrors?.length > 0){
           const moreErrors = uploadResults.filter((result) => {
-            console.log(`yoooo`,(result));
-            if (result.message || result.data.createAsset.size === null) {
+            if (result.message || result.data.createAsset.url === null) {
               return result;
             }
           });
