@@ -141,7 +141,7 @@ const utils = {
   * @param {array} uploadResults - array of objects containing the results of the image uploads
   * @param {number} index - the index of the uploadResults array to locate the id for
   */
-  locateUploadResultId: function (obj, index) {
+  locateUploadResultId: function (obj) {
     // Base case: if obj is not an object or is null, return null
   if (typeof obj !== 'object' || obj === null) {
     return null;

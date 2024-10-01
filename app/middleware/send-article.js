@@ -57,7 +57,7 @@ const sendArticle = async (link, brand) => {
       const uploadResults = [];
       let uploadErrors;
       if (imgUriArray) {
-        for (const imgUri of imgUriArray) {
+        for (const imgUri of imgUriArray.slice().reverse()) {
           const imgUploadResult = brand === "0" ? await queries.uploadImage(imgUri, brand) : await queries.uploadImageLegacy(imgUri, brand);
           //check if hygraph sent back an error
           if(imgUploadResult.errors) uploadErrors = imgUploadResult.errors.map((e)=>e);
@@ -83,17 +83,17 @@ const sendArticle = async (link, brand) => {
           console.log(`UPLOAD RESULTS`, uploadResults);
           //${uploadResults[0].data.createAsset.id}
           article.coverImage = {
-            connect: { id: utils.locateUploadResultId(uploadResults, 0)},
+            connect: { id: utils.locateUploadResultId(uploadResults[0])},
           };
           console.log(`COVER IMAGE`, article.coverImage);
           if (uploadResults[1]) {
             article.secondaryImage = {
-              connect: { id: utils.locateUploadResultId(uploadResults, 1)},
+              connect: { id: utils.locateUploadResultId(uploadResults[1])},
             };
           }
           if (uploadResults[2]) {
             article.articleCardIcon = {
-              connect: { id: utils.locateUploadResultId(uploadResults, 2)},
+              connect: { id: utils.locateUploadResultId(uploadResults[2])},
             };
           }
         }
