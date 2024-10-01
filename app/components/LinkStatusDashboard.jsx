@@ -9,7 +9,6 @@ import SecondaryButton from "./buttons/SecondaryButton";
 // }
 
 export default function LinkStatusDashboard({ articleStatusInfo }) {
-  console.log(articleStatusInfo);
   const formattedData = articleStatusInfo.map((articleInfo, index, arr) => {
     return {
       articleData: articleInfo.article,
@@ -17,6 +16,7 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
       status: articleInfo.status,
       link: articleInfo.url,
       message: articleInfo?.errors,
+      result: articleInfo?.result,
       style:
         articleInfo.status === "complete"
           ? "bg-emerald-400 border-emerald-400"
@@ -43,6 +43,7 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
       <ol>
         {formattedData.map((article, i, arr) => (
           <li key={i} className="my-3 relative">
+            <span>{article.result}</span>
             <div
               className={`border-2 p-3 rounded-md bg-indigo-900 ${
                 article.status === "error"
