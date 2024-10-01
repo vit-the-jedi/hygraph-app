@@ -73,13 +73,13 @@ const sendArticle = async (link, brand) => {
         }else {
           //hygraph doesn't throw an error for incorrect image formats, so we need to check for that here
           uploadErrors = uploadResults.filter((result) => {
-            if (result.message || result.data.createAsset.size === null) {
+            if (result.message) {
               return result;
             }
           });
         }
         //if no errors, continue on with the article creation
-        if (!uploadErrors) {
+        if (uploadErrors.length === 0) {
           article.coverImage = {
             connect: { id: `${uploadResults[0].data.createAsset.id}` },
           };
@@ -104,13 +104,13 @@ const sendArticle = async (link, brand) => {
 
       //if there was an error creating the assets, return with an error
       //should find a way to do this earlier and save computation
-      if(uploadErrors) {
+      if(uploadErrors.length > 0) {
         resp.hygraphResp = {};
         resp.hygraphResp.errors = uploadErrors.map((e) => {
           return { message: e.message ? e.message : "Error uploading image(s)" };
         });
       }else {
-        const articleCreationResponse = await queries.sendArticle(article, brand);
+        const articleCreationResponse = await queries.uploadArticle(article, brand);
         resp.hygraphResp = articleCreationResponse;
       }
       resolve(resp);

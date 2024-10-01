@@ -9,6 +9,7 @@ import SecondaryButton from "./buttons/SecondaryButton";
 // }
 
 export default function LinkStatusDashboard({ articleStatusInfo }) {
+  console.log(articleStatusInfo);
   const formattedData = articleStatusInfo.map((articleInfo, index, arr) => {
     return {
       articleData: articleInfo.article,
@@ -16,13 +17,13 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
       status: articleInfo.status,
       link: articleInfo.url,
       message: articleInfo?.errors,
-      result: articleInfo?.result,
       style:
         articleInfo.status === "complete"
           ? "bg-emerald-400 border-emerald-400"
           : "bg-rose-800 border-rose-800",
     };
   });
+  console.log(formattedData);
 
   const getCompletedContentEntry = (id) => {
     const contentLink =

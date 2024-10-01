@@ -43,7 +43,7 @@ const queries = {
     }
   });
   },
-  sendArticle: async function(article, brand){
+  uploadArticle: async function(article, brand){
     const query = `mutation createArticle($article: ArticleCreateInput!){
                     createArticle(data: $article)
                       {
@@ -66,8 +66,10 @@ const queries = {
            }),
         });
         const respJSON = await response.json();
+        console.log("HYGRAPH RESPONSE: ", respJSON);  
         resolve(respJSON);  
       }catch(err){  
+        console.log("HYGRAPH RESPONSE: ", err);  
         reject(err);
       }
     });
