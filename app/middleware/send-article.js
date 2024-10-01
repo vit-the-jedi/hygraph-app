@@ -50,6 +50,7 @@ const sendArticle = async (link, brand) => {
         resolve(docData);
       }
       const hygraphAst = transpileDocsAstToHygraphAst(docData.body.content);
+      console.log(`AST`, (hygraphAst));
       if (!hygraphAst)
         reject({ errors: [{ message: "Error transpiling document" }] });
 
@@ -58,7 +59,7 @@ const sendArticle = async (link, brand) => {
       let uploadErrors;
       if (imgUriArray) {
         for (const imgUri of imgUriArray) {
-          const imgUploadResult = await queries.uploadImage(imgUri, brand);
+          const imgUploadResult = brand === "0" ? await queries.uploadImage(imgUri, brand) : await queries.uploadImageLegacy(imgUri, brand);
           //check if hygraph sent back an error
           if(imgUploadResult.errors) uploadErrors = imgUploadResult.errors.map((e)=>e);
           else uploadResults.push(imgUploadResult);
@@ -80,27 +81,33 @@ const sendArticle = async (link, brand) => {
         }
         //if no errors, continue on with the article creation
         if (uploadErrors.length === 0) {
+          console.log(`UPLOAD RESULTS`, uploadResults);
+          //${uploadResults[0].data.createAsset.id}
           article.coverImage = {
-            connect: { id: `${uploadResults[0].data.createAsset.id}` },
+            connect: { id: utils.locateUploadResultId(uploadResults, 0)},
           };
+          console.log(`COVER IMAGE`, article.coverImage);
           if (uploadResults[1]) {
             article.secondaryImage = {
-              connect: { id: `${uploadResults[1].data.createAsset.id}` },
+              connect: { id: utils.locateUploadResultId(uploadResults, 1)},
             };
           }
           if (uploadResults[2]) {
             article.articleCardIcon = {
-              connect: { id: `${uploadResults[2].data.createAsset.id}` },
+              connect: { id: utils.locateUploadResultId(uploadResults, 2)},
             };
           }
         }
       }
+      const genericSubvertical = brand === "0" ? "home-services" : "insurance"
       article.title = hygraphAst.title;
       article.urlSlug = utils.generateSlug(hygraphAst.title);
       article.date = utils.generateDate();
       article.excerpt = hygraphAst.excerpt;
       article.content = hygraphAst.ast;
       article.metaKeywords = hygraphAst.metaKeywords;
+      article.vertical = hygraphAst.vertical || genericSubvertical;
+      article.subvertical = hygraphAst.subvertical || null;
 
       //if there was an error creating the assets, return with an error
       //should find a way to do this earlier and save computation

@@ -187,7 +187,19 @@ const transpileDocsAstToHygraphAst = (contentObj) => {
             if (excerptMatch) {
               hygraphAst.excerpt = excerptMatch;
             }
-          } else {
+          }
+          if (!hygraphAst.vertical) {
+            const verticalMatch = utils.extractVertical(text);
+            if (verticalMatch) {
+              hygraphAst.vertical = verticalMatch;
+            }
+          } 
+          if (!hygraphAst.subvertical) {
+            const subVerticalMatch = utils.extractSubvertical(text);
+            if (subVerticalMatch) {
+              hygraphAst.subvertical = subVerticalMatch;
+            }
+          }else {
             innerElement.paragraphStyle = element.paragraph.paragraphStyle;
             remainingObjects.push(innerElement);
           }
@@ -205,6 +217,8 @@ class HygraphAst {
     this.metaKeywords = null;
     this.ast = [];
     this.excerpt = null;
+    this.vertical = null;
+    this.subvertical = null;
   }
 }
 
