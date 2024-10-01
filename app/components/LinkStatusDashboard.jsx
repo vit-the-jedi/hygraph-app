@@ -43,7 +43,6 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
       <ol>
         {formattedData.map((article, i, arr) => (
           <li key={i} className="my-3 relative">
-            <span>{article.result}</span>
             <div
               className={`border-2 p-3 rounded-md bg-indigo-900 ${
                 article.status === "error"
