@@ -56,7 +56,6 @@ const utils = {
     const regex = /vertical:/gmi;
     try{
       const m = text.match(regex);
-      console.log(m);
       const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").trim();
       if(m) return t;
       else return null;
@@ -66,6 +65,17 @@ const utils = {
   },
   extractSubvertical: (text) => {
     const regex = /subvertical:/gmi;
+    try{
+      const m = text.match(regex);
+      const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").trim();
+      if(m) return t;
+      else return null;
+    }catch(e){
+      return null;
+    }
+  },
+  extractReadTime: (text) => {
+    const regex = /read\s+time:/gmi;
     try{
       const m = text.match(regex);
       const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").trim();

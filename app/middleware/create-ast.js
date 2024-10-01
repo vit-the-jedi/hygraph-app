@@ -204,7 +204,14 @@ const transpileDocsAstToHygraphAst = (contentObj) => {
             if (articleTypeMatch) {
               hygraphAst.articleType = articleTypeMatch;
             }
-          }else {
+          }
+          if (!hygraphAst.readTime) {
+            const readTimeMatch = utils.extractReadTime(text);
+            if (readTimeMatch) {
+              hygraphAst.readTime = readTimeMatch;
+            }
+          }
+          else {
             innerElement.paragraphStyle = element.paragraph.paragraphStyle;
             remainingObjects.push(innerElement);
           }
@@ -225,6 +232,7 @@ class HygraphAst {
     this.vertical = null;
     this.subvertical = null;
     this.articleType = null;
+    this.readTime = null;
   }
 }
 

@@ -108,6 +108,7 @@ const sendArticle = async (link, brand) => {
       article.metaKeywords = hygraphAst.metaKeywords;
       article.vertical = hygraphAst.vertical || genericSubvertical;
       article.subvertical = hygraphAst.subvertical || null;
+      article.readTime = hygraphAst.readTime || "5 min read";
 
       //if there was an error creating the assets, return with an error
       //should find a way to do this earlier and save computation

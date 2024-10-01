@@ -13,7 +13,6 @@ const apiKeyMap = {
 
 const queries = {
   uploadImage: async function (uri, brand) {
-    console.log("URI " + uri);
     return new Promise(async (resolve, reject) => {
       try {
         const response = await fetch(apiKeyMap[brand].url, {
@@ -89,7 +88,7 @@ const queries = {
         console.log("HYGRAPH RESPONSE: ", respJSON);
         resolve(respJSON);
       } catch (err) {
-        console.log("HYGRAPH RESPONSE: ", err);
+        console.log("HYGRAPH ERROR: ", err);
         reject(err);
       }
     });
