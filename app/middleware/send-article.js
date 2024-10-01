@@ -16,7 +16,6 @@ class Article {
     this.content = null;
     this.metaKeywords = null;
     this.coverImage = null;
-    this.articleType = "article";
   }
 }
 
@@ -99,7 +98,8 @@ const sendArticle = async (link, brand) => {
           }
         }
       }
-      const genericSubvertical = brand === "0" ? "home-services" : "insurance"
+      const genericSubvertical = brand === "0" ? "home-services" : "insurance";
+      article.articleType = hygraphAst.articleType || "article";
       article.title = hygraphAst.title;
       article.urlSlug = utils.generateSlug(hygraphAst.title);
       article.date = utils.generateDate();

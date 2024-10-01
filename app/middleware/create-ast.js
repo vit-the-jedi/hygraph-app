@@ -199,6 +199,11 @@ const transpileDocsAstToHygraphAst = (contentObj) => {
             if (subVerticalMatch) {
               hygraphAst.subvertical = subVerticalMatch;
             }
+          }if (!hygraphAst.articleType) {
+            const articleTypeMatch = utils.extractArticleType(text);
+            if (articleTypeMatch) {
+              hygraphAst.articleType = articleTypeMatch;
+            }
           }else {
             innerElement.paragraphStyle = element.paragraph.paragraphStyle;
             remainingObjects.push(innerElement);
@@ -219,6 +224,7 @@ class HygraphAst {
     this.excerpt = null;
     this.vertical = null;
     this.subvertical = null;
+    this.articleType = null;
   }
 }
 

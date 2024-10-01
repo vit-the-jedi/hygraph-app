@@ -75,6 +75,18 @@ const utils = {
       return null;
     }
   },
+  extractArticleType: (text) => {
+    const regex = /article\s+type:/gmi;
+    try{
+      const m = text.match(regex);
+      console.log(m);
+      const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").trim();
+      if(m) return t;
+      else return null;
+    }catch(e){
+      return null;
+    }
+  },
   extractMetaKeywords: (metaKeywords) => {
     try{
       const keywords = metaKeywords.match(/content="(.*?)"/);
