@@ -23,6 +23,7 @@ export default async function Upload({
       <Header />
       <section style={{maxWidth:'900px',width:'100%', margin:'auto'}}>
       <h1 className='text-4xl mb-10 text-center'>Review Your Uploads Below</h1>
+      <p className='text-center'>Upload can take up to 1 minute.</p>
         <UploadDocs config={{
           baseURL: process.env.URL,
           links: linkValues,
