@@ -9,6 +9,7 @@ export async function GET(request) {
   try{
     for (const link of linkValues) {
       const result = await sendArticle(link, brand);
+      console.log(`SEND ARTICLE RESULT:`, (result));
       const resObj = {};
       resObj.article = result.article;
       resObj.url = link;

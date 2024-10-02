@@ -28,7 +28,6 @@ export default function UploadDocs({ config }) {
       setIsLoading(true);
       const res = await fetch(`${url}?${query.toString()}`, {cache: "no-store"});
       const resJSON = await res.json();
-      console.log(`SERIALIZED RESULT:`, (resJSON));
       setData(resJSON);
       setErrorMessages(resJSON.filter((item) => item.errors).map((item) => item.errors));
       setIsLoading(false);

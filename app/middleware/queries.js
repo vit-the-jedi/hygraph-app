@@ -1,76 +1,98 @@
 "use strict";
 
 const apiKeyMap = {
-  "0": {
+  0: {
     key: process.env.FHP_API_KEY,
     url: process.env.FHP_API_URL,
   },
-  "1": {
+  1: {
     key: process.env.PROTECT_API_KEY,
     url: process.env.PROTECT_API_URL,
   },
-}
-
+};
 
 const queries = {
-  uploadImage: async function (uri, brand){
-  return new Promise(async(resolve, reject)=>{
-    try{
-      const response = await fetch(apiKeyMap[brand].url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          //Authorization: `Bearer ${apiKeyMap[brand].key}`,
-        },
-        body: JSON.stringify({
-          query: `mutation uploadArticleImage{
-                createAsset(
-                  data: {
-                    uploadUrl:"${uri}"
-                  }
-                ) {
-                  id,
-                  size
-                }
-              }`,
-        }),
-      });
-      const respJSON = await response.json();
-      resolve(respJSON);  
-    }catch(err){  
-      reject(err);
-    }
-  });
-  },
-  sendArticle: async function(article, brand){
-    const query = `mutation createArticle($article: ArticleCreateInput!){
-                    createArticle(data: $article)
-                      {
-                        id
-                      }
-                    }`;
-    return new Promise(async(resolve, reject)=>{
-      try{
+  uploadImage: async function (uri, brand) {
+    return new Promise(async (resolve, reject) => {
+      try {
         const response = await fetch(apiKeyMap[brand].url, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             //Authorization: `Bearer ${apiKeyMap[brand].key}`,
           },
-          body: JSON.stringify({ 
-            query: query,
-            variables: {
-              article: article,
-            }
-           }),
+          body: JSON.stringify({
+            query: `mutation uploadArticleImage{
+                createAsset(
+                  data: {
+                    uploadUrl:"${uri}"
+                  }
+                ) {
+                  id,
+                  url
+                }
+              }`,
+          }),
         });
         const respJSON = await response.json();
-        resolve(respJSON);  
-      }catch(err){  
+        resolve(respJSON);
+      } catch (err) {
         reject(err);
       }
     });
-  }, 
-}
+  },
+  uploadImageLegacy: async function (uri, brand) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await fetch(`${apiKeyMap[brand].url}/upload`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            //Authorization: `Bearer ${apiKeyMap[brand].key}`,
+          },
+          body: `url=${encodeURIComponent(
+            uri
+          )}`,
+        });
+        const respJSON = await response.json();
+        console.log(`LEGACY RESPONSE: `, respJSON);
+        resolve(respJSON);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  },
+  uploadArticle: async function (article, brand) {
+    const query = `mutation createArticle($article: ArticleCreateInput!){
+                    createArticle(data: $article)
+                      {
+                        id
+                      }
+                    }`;
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await fetch(apiKeyMap[brand].url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            //Authorization: `Bearer ${apiKeyMap[brand].key}`,
+          },
+          body: JSON.stringify({
+            query: query,
+            variables: {
+              article: article,
+            },
+          }),
+        });
+        const respJSON = await response.json();
+        console.log("HYGRAPH RESPONSE: ", respJSON);
+        resolve(respJSON);
+      } catch (err) {
+        console.log("HYGRAPH ERROR: ", err);
+        reject(err);
+      }
+    });
+  },
+};
 
-export {queries};
+export { queries };

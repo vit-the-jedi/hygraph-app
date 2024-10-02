@@ -52,6 +52,51 @@ const utils = {
       return null;
     }
   },
+  extractVertical: (text) => {
+    const regex = /vertical:/gmi;
+    try{
+      const m = text.match(regex);
+      const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").trim();
+      if(m) return t;
+      else return null;
+    }catch(e){
+      return null;
+    }
+  },
+  extractSubvertical: (text) => {
+    const regex = /subvertical:/gmi;
+    try{
+      const m = text.match(regex);
+      const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").trim();
+      if(m) return t;
+      else return null;
+    }catch(e){
+      return null;
+    }
+  },
+  extractReadTime: (text) => {
+    const regex = /read\s+time:/gmi;
+    try{
+      const m = text.match(regex);
+      const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").trim();
+      if(m) return t;
+      else return null;
+    }catch(e){
+      return null;
+    }
+  },
+  extractArticleType: (text) => {
+    const regex = /article\s+type:/gmi;
+    try{
+      const m = text.match(regex);
+      console.log(m);
+      const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").trim();
+      if(m) return t;
+      else return null;
+    }catch(e){
+      return null;
+    }
+  },
   extractMetaKeywords: (metaKeywords) => {
     try{
       const keywords = metaKeywords.match(/content="(.*?)"/);
@@ -90,6 +135,34 @@ const utils = {
     const buffer = Buffer.from(arrayBuffer);
 
     fs.writeFileSync(filePath, buffer);
+  },
+  /*
+  * @description - locates the id of the image upload result - needed because we switch between legacy and new formats in hygraph
+  * @param {array} uploadResults - array of objects containing the results of the image uploads
+  * @param {number} index - the index of the uploadResults array to locate the id for
+  */
+  locateUploadResultId: function (obj) {
+    // Base case: if obj is not an object or is null, return null
+  if (typeof obj !== 'object' || obj === null) {
+    return null;
+  }
+
+  // Check if the current object has an 'id' property
+  if (obj.hasOwnProperty('id')) {
+    return obj.id;
+  }
+
+  // If not, iterate over the object's keys
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const result = this.locateUploadResultId(obj[key]); // Recursively search in the nested object
+      if (result !== null) {
+        return result; // Return the found id if it exists
+      }
+    }
+  }
+
+  return null; // Return null if no id is found
   },
 };
 

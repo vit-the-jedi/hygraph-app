@@ -23,6 +23,7 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
           : "bg-rose-800 border-rose-800",
     };
   });
+  console.log(formattedData);
 
   const getCompletedContentEntry = (id) => {
     const contentLink =
