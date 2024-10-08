@@ -31,7 +31,7 @@ export default function DocLinkForm() {
   const saveDocLinksAndRedirect = (e) => {
     e.preventDefault();
     const docLinks = Object.values(inputs).map(input => input.value);
-    const query = new URLSearchParams({ docLinks, brand: select });
+    const query = new URLSearchParams({ docLinks, domain: select });
     router.push(`/upload?${query.toString()}`);
   }
   return (

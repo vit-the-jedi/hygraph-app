@@ -4,11 +4,11 @@ export async function GET(request) {
   //must pass back an array here
   let info = [];
   const linkValues = request.nextUrl.searchParams.get("params").split(",");
-  const brand = request.nextUrl.searchParams.get("brand");
+  const domain = request.nextUrl.searchParams.get("domain");
   let i = 0;
   try{
     for (const link of linkValues) {
-      const result = await sendArticle(link, brand);
+      const result = await sendArticle(link, domain);
       console.log(`SEND ARTICLE RESULT:`, (result));
       const resObj = {};
       resObj.article = result.article;
