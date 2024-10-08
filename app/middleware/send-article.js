@@ -16,6 +16,7 @@ class Article {
     this.content = null;
     this.metaKeywords = null;
     this.coverImage = null;
+    this.domain = null;
   }
 }
 
@@ -35,7 +36,7 @@ async function readDoc(documentId) {
   });
 }
 
-const sendArticle = async (link, brand) => {
+const sendArticle = async (link, domain) => {
   return new Promise(async (resolve, reject) => {
     try {
       const article = new Article();
@@ -58,7 +59,7 @@ const sendArticle = async (link, brand) => {
       let uploadErrors;
       if (imgUriArray) {
         for (const imgUri of imgUriArray.slice().reverse()) {
-          const imgUploadResult = brand === "0" ? await queries.uploadImage(imgUri, brand) : await queries.uploadImageLegacy(imgUri, brand);
+          const imgUploadResult = await queries.uploadImage(imgUri);
           //check if hygraph sent back an error
           if(imgUploadResult.errors) uploadErrors = imgUploadResult.errors.map((e)=>e);
           else uploadResults.push(imgUploadResult);
@@ -98,7 +99,7 @@ const sendArticle = async (link, brand) => {
           }
         }
       }
-      const genericSubvertical = brand === "0" ? "home-services" : "insurance";
+      const genericSubvertical = domain === "findhomepros.com" ? "home-services" : "insurance";
       article.articleType = hygraphAst.articleType || "article";
       article.title = hygraphAst.title;
       article.urlSlug = utils.generateSlug(hygraphAst.title);
@@ -109,6 +110,7 @@ const sendArticle = async (link, brand) => {
       article.vertical = hygraphAst.vertical || genericSubvertical;
       article.subvertical = hygraphAst.subvertical || null;
       article.readTime = hygraphAst.readTime || "5 min read";
+      article.domain = domain;
 
       //if there was an error creating the assets, return with an error
       //should find a way to do this earlier and save computation
@@ -118,7 +120,7 @@ const sendArticle = async (link, brand) => {
           return { message: e.message ? e.message : "Error uploading image(s)" };
         });
       }else {
-        const articleCreationResponse = await queries.uploadArticle(article, brand);
+        const articleCreationResponse = await queries.uploadArticle(article);
         resp.hygraphResp = articleCreationResponse;
       }
       resolve(resp);
