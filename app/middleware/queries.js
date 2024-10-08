@@ -2,9 +2,10 @@
 
 const queries = {
   uploadImage: async function (uri) {
+    console.log(`UPLOADING IMAGE: `, uri);
     return new Promise(async (resolve, reject) => {
       try {
-        const response = await fetch(`${process.env.API_URL}/upload`, {
+        const response = await fetch(`${process.env.API_URL}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

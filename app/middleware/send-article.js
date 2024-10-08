@@ -53,7 +53,6 @@ const sendArticle = async (link, domain) => {
       console.log(`AST`, (hygraphAst));
       if (!hygraphAst)
         reject({ errors: [{ message: "Error transpiling document" }] });
-
       const imgUriArray = utils.extractImageUris(docData?.inlineObjects);
       const uploadResults = [];
       let uploadErrors;
@@ -64,13 +63,10 @@ const sendArticle = async (link, domain) => {
           if(imgUploadResult.errors) uploadErrors = imgUploadResult.errors.map((e)=>e);
           else uploadResults.push(imgUploadResult);
         }
-        if(uploadErrors?.length > 0){
-          const moreErrors = uploadResults.filter((result) => {
-            if (result.message || result.data.createAsset.url === null) {
-              return result;
-            }
-          });
-          moreErrors.forEach((e) => uploadErrors.push(e));  
+        if(uploadResults[0].error){
+          resp.hygraphResp = {};
+          resp.hygraphResp.errors = [{ message: uploadResults[0].error }]
+          resolve(resp);
         }else {
           //hygraph doesn't throw an error for incorrect image formats, so we need to check for that here
           uploadErrors = uploadResults.filter((result) => {
@@ -110,21 +106,15 @@ const sendArticle = async (link, domain) => {
       article.vertical = hygraphAst.vertical || genericSubvertical;
       article.subvertical = hygraphAst.subvertical || null;
       article.readTime = hygraphAst.readTime || "5 min read";
-      article.domain = domain;
+      article.domain = utils.transformDomainToHygraphAPIRef(domain);
 
       //if there was an error creating the assets, return with an error
       //should find a way to do this earlier and save computation
-      if(uploadErrors.length > 0) {
-        resp.hygraphResp = {};
-        resp.hygraphResp.errors = uploadErrors.map((e) => {
-          return { message: e.message ? e.message : "Error uploading image(s)" };
-        });
-      }else {
-        const articleCreationResponse = await queries.uploadArticle(article);
-        resp.hygraphResp = articleCreationResponse;
-      }
+      const articleCreationResponse = await queries.uploadArticle(article);
+      resp.hygraphResp = articleCreationResponse;
       resolve(resp);
     } catch (err) {
+      console.trace();
       console.log(err);
       reject({ errors: [{ message: err.message ? err.message : err }] });
     }

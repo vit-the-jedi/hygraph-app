@@ -151,7 +151,11 @@ const createAstFromDocs = (content) => {
           }
           prevElChildren.push(linkReturnObj);
         }else if(isPeriod){
-          prevElChildren[prevElChildren.length - 1].children[0].text += ".";
+          if(prevElChildren[prevElChildren.length - 1].children){
+            prevElChildren[prevElChildren.length - 1].children[0].text += ".";
+          }else {
+            prevElChildren[prevElChildren.length - 1].text += ".";
+          }
         }
       }
     }
