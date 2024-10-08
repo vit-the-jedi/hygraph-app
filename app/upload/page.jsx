@@ -27,7 +27,7 @@ export default async function Upload({
         <UploadDocs config={{
           baseURL: process.env.URL,
           links: linkValues,
-          brand: searchParams.brand,
+          domain: searchParams.domain,
         }}/>
       </section>
     </main>
