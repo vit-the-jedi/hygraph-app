@@ -33,7 +33,7 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
 
   const brand = new URLSearchParams(window.location.search).get("brand");
 
-  const cmsContentEntryLink ="https://studio-us-west-2.hygraph.com/3cf63a4c-ac4c-4400-aba2-bf68086746fa/1368436c95744d638c0242f9a7a7a2a9/content/010defeb55f24798975c172cfb93ff3e/";
+  const cmsContentEntryLink ="https://studio-us-west-2.hygraph.com/3cf63a4c-ac4c-4400-aba2-bf68086746fa/1368436c95744d638c0242f9a7a7a2a9/content/f144b3a55cb442479d0f11c3ef85c2ca/entry/";
   return (
     <section>
       <ol>
