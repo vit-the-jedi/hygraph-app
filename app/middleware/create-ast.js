@@ -119,19 +119,39 @@ const createAstFromDocs = (content) => {
     if (!contentBlock.paragraph) {
       return null;
     }
-    const totalTextRunArr = contentBlock?.paragraph?.elements.map((element, i, arr) => {
-      if (element.textRun && element.textRun.content) {
-        contentBlockStyle = contentBlock.paragraph?.paragraphStyle?.namedStyleType
-          ? createHeadingName(contentBlock.paragraph.paragraphStyle.namedStyleType)
-          : "paragraph";
-        return {
-          bold: element.textRun?.textStyle?.bold,
-          italic: element.textRun?.textStyle?.italic,
-          underline: element.textRun?.textStyle?.underline,
-          text: element.textRun?.content.replace(/(\r\n|\n|\r)/gm, ""),
-        };
+    const totalTextRunArr = contentBlock?.paragraph?.elements.map(
+      (element, i, arr) => {
+        const isLinkElement = element?.textRun?.textStyle?.link;
+        if (isLinkElement) {
+          return {
+            type: "link",
+            href: isLinkElement.url,
+            title: "",
+            openInNewTab: true,
+            children: [
+              {
+                type: "text",
+                text: element.textRun?.content.replace(/(\r\n|\n|\r)/gm, ""),
+              },
+            ],
+          };
+        }
+        if (element.textRun && element.textRun.content) {
+          contentBlockStyle = contentBlock.paragraph?.paragraphStyle
+            ?.namedStyleType
+            ? createHeadingName(
+                contentBlock.paragraph.paragraphStyle.namedStyleType
+              )
+            : "paragraph";
+          return {
+            bold: element.textRun?.textStyle?.bold,
+            italic: element.textRun?.textStyle?.italic,
+            underline: element.textRun?.textStyle?.underline,
+            text: element.textRun?.content.replace(/(\r\n|\n|\r)/gm, ""),
+          };
+        }
       }
-    });
+    );
     return {
       type: contentBlockStyle,
       //filter out any null values
