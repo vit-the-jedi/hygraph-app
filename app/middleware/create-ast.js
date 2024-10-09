@@ -109,121 +109,106 @@ const createHeadingName = (namedStyleType) => {
   }
 };
 const createAstFromDocs = (content) => {
-  const ast = [];
-  content.forEach((element, index, arr) => {
-    const elementContentText = element?.textRun?.content.replace(
-      /(\r\n|\n|\r)/gm,
-      ""
-    );
-    const isLinkElement = element?.textRun?.textStyle?.link;
-    const isPeriod = !/[a-z]/i.test(elementContentText) && elementContentText.includes(".");
-    if (elementContentText?.length > 0 && !element.inlineObjectElement) {
-      let returnObj;
-      if (!isLinkElement && !isPeriod) {
-        returnObj = {
-          type: element.paragraphStyle?.namedStyleType
-            ? createHeadingName(element.paragraphStyle.namedStyleType)
-            : "paragraph",
-          children: [
-            {
-              bold: element?.textRun?.textStyle?.bold,
-              italic: element?.textRun?.textStyle?.italic,
-              text: elementContentText,
-            },
-          ],
-        };
-      // Directly push the object into `ast` array
-      ast.push(returnObj);
-      } else {
-        const prevEl = ast[ast.length - 1];
-        const prevElChildren = prevEl?.children;
-        if(isLinkElement){
-          const linkReturnObj = {
-            type: "link",
-            href: isLinkElement.url,
-            children: [
-              {
-                bold: element?.textRun?.textStyle?.bold,
-                italic: element?.textRun?.textStyle?.italic,
-                text: elementContentText,
-              },
-            ],
-          }
-          prevElChildren.push(linkReturnObj);
-        }else if(isPeriod){
-          if(prevElChildren[prevElChildren.length - 1].children){
-            prevElChildren[prevElChildren.length - 1].children[0].text += ".";
-          }else {
-            prevElChildren[prevElChildren.length - 1].text += ".";
-          }
-        }
-      }
+  let contentBlockStyle = null;
+  //ast is an array of objects, each object represents a text block
+  let ast = content.map((contentBlock, index, arr) => {
+    //create an inner array of objects that will be the children of the parent text block
+    //each child represents a text node with its style
+    //when added to the children property on the parent text block, each text node will be combined to display an entire text block,
+    //instead of each text node being displayed as a separate block
+    if (!contentBlock.paragraph) {
+      return null;
     }
+    const totalTextRunArr = contentBlock?.paragraph?.elements.map((element, i, arr) => {
+      if (element.textRun && element.textRun.content) {
+        contentBlockStyle = contentBlock.paragraph?.paragraphStyle?.namedStyleType
+          ? createHeadingName(contentBlock.paragraph.paragraphStyle.namedStyleType)
+          : "paragraph";
+        return {
+          bold: element.textRun?.textStyle?.bold,
+          italic: element.textRun?.textStyle?.italic,
+          underline: element.textRun?.textStyle?.underline,
+          text: element.textRun?.content.replace(/(\r\n|\n|\r)/gm, ""),
+        };
+      }
+    });
+    return {
+      type: contentBlockStyle,
+      //filter out any null values
+      children: totalTextRunArr.filter((element) => element),
+    };
   });
-
   return {
-    children: ast.filter((el) => el !== undefined),
+    children: ast.filter((astNode) => astNode),
   };
 };
 
 const transpileDocsAstToHygraphAst = (contentObj) => {
   const hygraphAst = new HygraphAst();
-  const remainingObjects = [];
-  contentObj.forEach((element, outerIndex, arr) => {
+  //return an array with the remaining content after extracting the title, metaKeywords, excerpt, vertical, subvertical, articleType, and readTime
+  const remainingContent = contentObj.map((element, outerIndex, arr) => {
     if (element.paragraph && element.paragraph.elements) {
-      element.paragraph.elements.forEach((innerElement) => {
-        const text = innerElement?.textRun?.content;
+      for (const el of element.paragraph.elements) {
+        const text = el?.textRun?.content;
         if (text) {
           if (!hygraphAst.title) {
             const titleMatch = utils.extractTitle(text);
             if (titleMatch) {
               hygraphAst.title = titleMatch;
+              element = null;
             }
           }
           if (!hygraphAst.metaKeywords) {
             const metaKeywordMatch = utils.extractMetaKeywords(text);
             if (metaKeywordMatch) {
               hygraphAst.metaKeywords = metaKeywordMatch;
+              element = null;
             }
           }
           if (!hygraphAst.excerpt) {
             const excerptMatch = utils.extractExcerpt(text);
             if (excerptMatch) {
               hygraphAst.excerpt = excerptMatch;
+              element = null;
             }
           }
           if (!hygraphAst.vertical) {
             const verticalMatch = utils.extractVertical(text);
             if (verticalMatch) {
               hygraphAst.vertical = verticalMatch;
+              element = null;
             }
-          } 
+          }
           if (!hygraphAst.subvertical) {
             const subVerticalMatch = utils.extractSubvertical(text);
             if (subVerticalMatch) {
               hygraphAst.subvertical = subVerticalMatch;
+              element = null;
             }
-          }if (!hygraphAst.articleType) {
+          }
+          if (!hygraphAst.articleType) {
             const articleTypeMatch = utils.extractArticleType(text);
             if (articleTypeMatch) {
               hygraphAst.articleType = articleTypeMatch;
+              element = null;
             }
           }
           if (!hygraphAst.readTime) {
             const readTimeMatch = utils.extractReadTime(text);
             if (readTimeMatch) {
               hygraphAst.readTime = readTimeMatch;
+              element = null;
             }
           }
-          else {
-            innerElement.paragraphStyle = element.paragraph.paragraphStyle;
-            remainingObjects.push(innerElement);
-          }
         }
-      });
+      }
     }
+    return element;
   });
-  hygraphAst.ast = createAstFromDocs(remainingObjects);
+  //filter out the empty or undefined array entries and create the ast wwith the rest
+  hygraphAst.ast = createAstFromDocs(
+    remainingContent.filter((content) => content)
+  );
   return hygraphAst;
 };
 
@@ -240,4 +225,4 @@ class HygraphAst {
   }
 }
 
-export { transpileDocsAstToHygraphAst, HygraphAst};
+export { transpileDocsAstToHygraphAst, HygraphAst };
