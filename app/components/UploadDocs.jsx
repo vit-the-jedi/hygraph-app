@@ -8,7 +8,7 @@ import PrimaryButton from "./buttons/PrimaryButton";
 import { useState, useEffect } from "react";
 
 export default function UploadDocs({ config }) {
-  const query = new URLSearchParams({ params: config.links, brand: config.brand });
+  const query = new URLSearchParams({ params: config.links, domain: config.domain });
   const url = config.baseURL + "/api/upload";
   const [data, setData] = useState(null);
   const [errorMessages, setErrorMessages] = useState([]);

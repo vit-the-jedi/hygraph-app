@@ -7,11 +7,11 @@ const utils = {
   generateSlug: (title) => {
     try {
       const trimmed = title.split(" ").reduce((acc, curr, i, arr) => {
-        if (i <= 4) {
+        if (i <= 10) {
           acc.push(curr.toLowerCase());
         }
         return acc;
-      }, []);
+      }, []).filter((word) => word.match(/[a-z]/gmi));
       const currentYear = String(new Date().getFullYear());
       if (title.includes(currentYear)) {
         trimmed.push(currentYear);
@@ -89,7 +89,6 @@ const utils = {
     const regex = /article\s+type:/gmi;
     try{
       const m = text.match(regex);
-      console.log(m);
       const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").trim();
       if(m) return t;
       else return null;
@@ -115,6 +114,18 @@ const utils = {
       console.log(`No images found in document, proceeding...`);
       return null;
     }
+  },
+  transformDomainToHygraphAPIRef: (domain) => {
+    switch(domain){
+      case "findhomepros.com":
+        return "findhomeprosCom";
+      case "protect.com":
+        return "protectCom";
+      case "free-insurance-quotes.us":
+        return "freeInsuranceQuotesUs";
+      default:
+        return null;
+    }; 
   },
   /* can upload by url to hygraph - but doesn't hurt to have this */
   downloadImage: async (url) => {

@@ -7,7 +7,7 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
 export default function DocLinkForm() {
   const [inputs, setInputs] = useState([{ id: 1, value: '' }]);
-  const [select, updateSelect] = useState('0');
+  const [select, updateSelect] = useState('findhomepros.com');
   const router = useRouter();
 
   const handleInputChange = (id, value) => {
@@ -31,7 +31,7 @@ export default function DocLinkForm() {
   const saveDocLinksAndRedirect = (e) => {
     e.preventDefault();
     const docLinks = Object.values(inputs).map(input => input.value);
-    const query = new URLSearchParams({ docLinks, brand: select });
+    const query = new URLSearchParams({ docLinks, domain: select });
     router.push(`/upload?${query.toString()}`);
   }
   return (
@@ -39,8 +39,9 @@ export default function DocLinkForm() {
         <div className="m-3">
           <select id="brand-picker" className="w-full border p-2 border-gray-300 text-gray-900 rounded-md" 
           onChange={(e) => handleSelectChange(select.id, e.target.value)}>
-            <option value='0'>Find Home Pros</option>
-            <option value='1'>Protect</option>
+            <option value='findhomepros.com'>Find Home Pros</option>
+            <option value='protect.com'>Protect</option>
+            <option value='free-insurance-quotes.us'>Free Insurance Quotes</option>
           </select>
         </div>
         {inputs.map((input, i, arr) => (

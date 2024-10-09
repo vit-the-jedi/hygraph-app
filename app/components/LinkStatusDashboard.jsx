@@ -33,11 +33,7 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
 
   const brand = new URLSearchParams(window.location.search).get("brand");
 
-  const cmsContentEntryLink =
-    brand === "0"
-      ? "https://studio-us-east-1-shared-usea1-02.hygraph.com/dc387f44-9a95-4765-a5e2-581e6ba87d32/74c032da3f0541dc8c6df0cf670523b0/content/b619711b3d264e0aa7a28714ea8978d1/entry/"
-      : "https://studio-us-east-1.hygraph.com/bdc6b387-416f-4e4f-ac4e-3c5a86f132ff/945c8f79b15c4fc0b11fd1a585e23d07/content/b640f1612d82410d853f23cf500d0364/entry/";
-
+  const cmsContentEntryLink ="https://studio-us-west-2.hygraph.com/3cf63a4c-ac4c-4400-aba2-bf68086746fa/1368436c95744d638c0242f9a7a7a2a9/content/f144b3a55cb442479d0f11c3ef85c2ca/entry/";
   return (
     <section>
       <ol>

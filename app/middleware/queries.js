@@ -1,21 +1,11 @@
 "use strict";
 
-const apiKeyMap = {
-  0: {
-    key: process.env.FHP_API_KEY,
-    url: process.env.FHP_API_URL,
-  },
-  1: {
-    key: process.env.PROTECT_API_KEY,
-    url: process.env.PROTECT_API_URL,
-  },
-};
-
 const queries = {
-  uploadImage: async function (uri, brand) {
+  uploadImage: async function (uri) {
+    console.log(`UPLOADING IMAGE: `, uri);
     return new Promise(async (resolve, reject) => {
       try {
-        const response = await fetch(apiKeyMap[brand].url, {
+        const response = await fetch(`${process.env.API_URL}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -41,7 +31,7 @@ const queries = {
       }
     });
   },
-  uploadImageLegacy: async function (uri, brand) {
+  uploadImageLegacy: async function (uri) {
     return new Promise(async (resolve, reject) => {
       try {
         const response = await fetch(`${apiKeyMap[brand].url}/upload`, {
@@ -62,7 +52,7 @@ const queries = {
       }
     });
   },
-  uploadArticle: async function (article, brand) {
+  uploadArticle: async function (article) {
     const query = `mutation createArticle($article: ArticleCreateInput!){
                     createArticle(data: $article)
                       {
@@ -71,7 +61,7 @@ const queries = {
                     }`;
     return new Promise(async (resolve, reject) => {
       try {
-        const response = await fetch(apiKeyMap[brand].url, {
+        const response = await fetch(process.env.API_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
