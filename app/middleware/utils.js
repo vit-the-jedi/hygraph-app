@@ -7,7 +7,7 @@ const utils = {
   generateSlug: (title) => {
     try {
       const trimmed = title.split(" ").reduce((acc, curr, i, arr) => {
-        if (i <= 4) {
+        if (i <= 10) {
           acc.push(curr.toLowerCase());
         }
         return acc;
