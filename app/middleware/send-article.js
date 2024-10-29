@@ -63,7 +63,7 @@ const sendArticle = async (link, domain) => {
           if(imgUploadResult.errors) uploadErrors = imgUploadResult.errors.map((e)=>e);
           else uploadResults.push(imgUploadResult);
         }
-        if(uploadResults[0].error){
+        if(uploadResults.length > 0 && uploadResults[0].errors){
           resp.hygraphResp = {};
           resp.hygraphResp.errors = [{ message: uploadResults[0].error }]
           resolve(resp);
