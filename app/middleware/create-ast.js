@@ -220,6 +220,13 @@ const transpileDocsAstToHygraphAst = (contentObj) => {
               element = null;
             }
           }
+          if (!hygraphAst.contentTag) {
+            const contentTagMatch = utils.extractContentTags(text);
+            if (contentTagMatch) {
+              hygraphAst.contentTag = contentTagMatch;
+              element = null;
+            }
+          }
         }
       }
     }
@@ -229,8 +236,10 @@ const transpileDocsAstToHygraphAst = (contentObj) => {
   hygraphAst.ast = createAstFromDocs(
     remainingContent.filter((content) => content)
   );
+  if(process.env.NODE_ENV === "development") console.log(`HYGRAPH AST: `, hygraphAst);
   return hygraphAst;
 };
+
 
 class HygraphAst {
   constructor() {
@@ -242,6 +251,7 @@ class HygraphAst {
     this.subvertical = null;
     this.articleType = null;
     this.readTime = null;
+    this.contentTag = null;
   }
 }
 

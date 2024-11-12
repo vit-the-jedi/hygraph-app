@@ -17,6 +17,7 @@ class Article {
     this.metaKeywords = null;
     this.coverImage = null;
     this.domain = null;
+    this.contentTag = null;
   }
 }
 
@@ -95,6 +96,22 @@ const sendArticle = async (link, domain) => {
           }
         }
       }
+      if (hygraphAst.contentTag.length > 0) {
+        //get the ids if they exist
+        const connectTagsObj = {};
+        const tagsFound = await queries.searchForTags(hygraphAst.contentTag.map((tag) => tag.tagValue)); 
+        const tagIds = tagsFound.data.contentTag.map((tag) => tag.id);
+        const diff = hygraphAst.contentTag.length - tagIds.length;
+        if (diff > 0) {
+          connectTagsObj.create = [];
+          for (const tag of hygraphAst.contentTag.slice(diff + 1)) {
+            connectTagsObj.create.push({tagValue: tag.tagValue });
+          }
+        }
+        connectTagsObj.connect = tagIds.map((id) => { return {id:id}});
+        console.log(`CONNECT TAGS OBJ: `, connectTagsObj);
+        article.contentTag = connectTagsObj;
+      }
       const genericSubvertical = domain === "findhomepros.com" ? "home-services" : "insurance";
       article.articleType = hygraphAst.articleType || "article";
       article.title = hygraphAst.title;
@@ -103,6 +120,7 @@ const sendArticle = async (link, domain) => {
       article.excerpt = hygraphAst.excerpt;
       article.content = hygraphAst.ast;
       article.metaKeywords = hygraphAst.metaKeywords;
+      // article.contentTag = hygraphAst.contentTag;
       article.vertical = hygraphAst.vertical || genericSubvertical;
       article.subvertical = hygraphAst.subvertical || null;
       article.readTime = hygraphAst.readTime || "5 min read";
@@ -114,7 +132,6 @@ const sendArticle = async (link, domain) => {
       resp.hygraphResp = articleCreationResponse;
       resolve(resp);
     } catch (err) {
-      console.trace();
       console.log(err);
       reject({ errors: [{ message: err.message ? err.message : err }] });
     }

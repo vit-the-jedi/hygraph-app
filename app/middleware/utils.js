@@ -96,6 +96,20 @@ const utils = {
       return null;
     }
   },
+  extractContentTags: (text) => {
+    try {
+      const regex = /content\s+tags:/gmi;
+      const m = text.match(regex);
+      const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").split(",");
+      const tags = t.map((tag) => {
+        return {tagValue: tag.trim()}
+      });
+      if(m) return tags;
+      else return null;
+    }catch(e){
+      return null;
+    }
+  },
   extractMetaKeywords: (metaKeywords) => {
     try{
       const keywords = metaKeywords.match(/content="(.*?)"/);
