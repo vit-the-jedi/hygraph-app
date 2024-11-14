@@ -6,41 +6,33 @@ export async function GET(request) {
   const linkValues = request.nextUrl.searchParams.get("params").split(",");
   const domain = request.nextUrl.searchParams.get("domain");
   let i = 0;
-  try{
+  try {
     for (const link of linkValues) {
       const result = await sendArticle(link, domain);
-      console.log(`SEND ARTICLE RESULT:`, (result));
+      console.log(`SEND ARTICLE RESULT:`, result);
       const resObj = {};
       resObj.article = result.article;
       resObj.url = link;
       resObj.id = i;
-  
-      const hygraphRespErrors = result?.hygraphResp?.errors;
-  
-      if (hygraphRespErrors && hygraphRespErrors.length > 0) {
-        resObj.status = "error";
-        resObj.errors = [];
-        hygraphRespErrors.forEach((error) => {
-          resObj.errors.push(error.message);
-        });
-        resObj.result = null;
-      } else {
-        resObj.status = "complete";
-        resObj.result = result.hygraphResp?.data?.createArticle?.id;
-      }
+
+      resObj.status = "complete";
+      resObj.result = result.hygraphResp?.data?.createArticle?.id;
       info.push(resObj);
       i++;
     }
-    return new Response(JSON.stringify(info,), {
+    return new Response(JSON.stringify(info), {
       headers: { "Content-Type": "application/json" },
     });
-  }catch(err){
-    console.log(err);
-    return new Response(JSON.stringify(err), {
+  } catch (err) {
+    const errorObj = {
+      errors: err.map((error) => {
+        return { message: error };
+      }),
+    }
+    console.log(`API ERROR`, errorObj);
+    return new Response(JSON.stringify(errorObj), {
       headers: { "Content-Type": "application/json" },
     });
   }
-  
-
 }
 //https://docs.google.com/document/d/18RXNr-4R_EMn2nb_hyWqQoJkhQbaamI2YO9XjqtWBAg/edit

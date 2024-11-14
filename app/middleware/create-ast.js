@@ -236,7 +236,6 @@ const transpileDocsAstToHygraphAst = (contentObj) => {
   hygraphAst.ast = createAstFromDocs(
     remainingContent.filter((content) => content)
   );
-  if(process.env.NODE_ENV === "development") console.log(`HYGRAPH AST: `, hygraphAst);
   return hygraphAst;
 };
 

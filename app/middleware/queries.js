@@ -144,14 +144,14 @@ const queries = {
           }),
         });
         const respJSON = await response.json();
-        console.log("HYGRAPH RESPONSE: ", respJSON);
+        //console.log("HYGRAPH RESPONSE: ", respJSON);
         if (respJSON.errors) {
-          if(process.env.NODE_ENV === "development") console.log(`HYGRAPH ERROR: `, respJSON.errors);
-          reject(respJSON.errors);
+         if(process.env.NODE_ENV === "development") console.log(`HYGRAPH RESPONSE ERROR: `, respJSON.errors.map((error) => error.message));
+          reject(respJSON.errors.map((error) => error.message));
         }
         resolve(respJSON);
       } catch (err) {
-        console.log("HYGRAPH ERROR: ", err);
+        console.log("HYGRAPH FETCH ERROR: ", err);
         reject(err);
       }
     });

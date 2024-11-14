@@ -28,8 +28,15 @@ export default function UploadDocs({ config }) {
       setIsLoading(true);
       const res = await fetch(`${url}?${query.toString()}`, {cache: "no-store"});
       const resJSON = await res.json();
-      setData(resJSON);
-      setErrorMessages(resJSON.filter((item) => item.errors).map((item) => item.errors));
+      console.log(`API RESP:`, (resJSON));
+      if (resJSON.errors){
+        setErrorMessages(resJSON.errors.map((errorMessages) => errorMessages.message));
+        setData(null);
+      }else {
+        setData(resJSON);
+      }
+      
+      console.log("data", data);
       setIsLoading(false);
     }
     fetchData();
@@ -43,18 +50,13 @@ export default function UploadDocs({ config }) {
       </div>
     </h3>
   </div>;
-  if (!data) return 
-  <div className="flex align-center justify-center mt-5">
-    <ErrorIcon />
-    <h3 className="text-lg text-rose-500">Error Uploading Documents</h3>
-</div>
   if(!isLoading) return (
     <div>
       <div className="flex align-center justify-center">
         <PrimaryButton buttonConfig={{text:"Go Home", onClick: goToHome}} />
       </div>
       <div>
-        <LinkStatusDashboard articleStatusInfo={data} />
+        { data && <LinkStatusDashboard articleStatusInfo={data} />}
         {errorMessages.length > 0 && <HelperInfo errors={errorMessages} />}
       </div>
     </div>

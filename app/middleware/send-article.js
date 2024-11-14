@@ -51,7 +51,6 @@ const sendArticle = async (link, domain) => {
         resolve(docData);
       }
       const hygraphAst = transpileDocsAstToHygraphAst(docData.body.content);
-      console.log(`AST`, (hygraphAst));
       if (!hygraphAst)
         reject({ errors: [{ message: "Error transpiling document" }] });
       const imgUriArray = utils.extractImageUris(docData?.inlineObjects);
@@ -78,12 +77,12 @@ const sendArticle = async (link, domain) => {
         }
         //if no errors, continue on with the article creation
         if (uploadErrors.length === 0) {
-          console.log(`UPLOAD RESULTS`, uploadResults);
+          //console.log(`UPLOAD RESULTS`, uploadResults);
           //${uploadResults[0].data.createAsset.id}
           article.coverImage = {
             connect: { id: utils.locateUploadResultId(uploadResults[0])},
           };
-          console.log(`COVER IMAGE`, article.coverImage);
+          //console.log(`COVER IMAGE`, article.coverImage);
           if (uploadResults[1]) {
             article.secondaryImage = {
               connect: { id: utils.locateUploadResultId(uploadResults[1])},
@@ -109,7 +108,7 @@ const sendArticle = async (link, domain) => {
           }
         }
         connectTagsObj.connect = tagIds.map((id) => { return {id:id}});
-        console.log(`CONNECT TAGS OBJ: `, connectTagsObj);
+        //console.log(`CONNECT TAGS OBJ: `, connectTagsObj);
         article.contentTag = connectTagsObj;
       }
       const genericSubvertical = domain === "findhomepros.com" ? "home-services" : "insurance";
@@ -125,15 +124,17 @@ const sendArticle = async (link, domain) => {
       article.subvertical = hygraphAst.subvertical || null;
       article.readTime = hygraphAst.readTime || "5 min read";
       article.domain = utils.transformDomainToHygraphAPIRef(domain);
-
+      //if(process.env.NODE_ENV === "development") console.log(`PARSED ARTICLE: `, article);
       //if there was an error creating the assets, return with an error
       //should find a way to do this earlier and save computation
       const articleCreationResponse = await queries.uploadArticle(article);
       resp.hygraphResp = articleCreationResponse;
+      console.log(`SEND ARTICLE RESP: `, (resp));
       resolve(resp);
     } catch (err) {
-      console.log(err);
-      reject({ errors: [{ message: err.message ? err.message : err }] });
+      //code errors or promise rejects from queries end up here
+      console.log(`SEND ARTICLE ERROR: `, (err));
+      reject(err);
     }
   });
 };
