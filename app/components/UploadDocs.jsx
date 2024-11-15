@@ -7,6 +7,7 @@ import PrimaryButton from "./buttons/PrimaryButton";
 
 import { useState, useEffect } from "react";
 
+
 export default function UploadDocs({ config }) {
   const query = new URLSearchParams({ params: config.links, domain: config.domain });
   const url = config.baseURL + "/api/upload";
@@ -30,8 +31,9 @@ export default function UploadDocs({ config }) {
       const resJSON = await res.json();
       console.log(`API RESP:`, (resJSON));
       setData(resJSON);
-      if (resJSON.errors){
-        setErrorMessages(resJSON.errors.map((errorMessages) => errorMessages.message));
+      const errors = resJSON.filter((item) => item.status === "error").map((errorResp) => errorResp.hygraphResp.errors).map((errorMessages) => errorMessages.map((error) => error.message));
+      if (errors.length > 0) {
+        setErrorMessages(errors);
       }
       console.log("data", data);
       setIsLoading(false);

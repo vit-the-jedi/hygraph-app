@@ -6,30 +6,44 @@ export async function GET(request) {
   const linkValues = request.nextUrl.searchParams.get("params").split(",");
   const domain = request.nextUrl.searchParams.get("domain");
   let i = 0;
-  const resObj = {};
+
+  const createErrorResponse = (res, url, id) => {
+    const errorResObj = {};
+    errorResObj.id = id;
+    errorResObj.url = url;
+    errorResObj.status = "error";
+    errorResObj.result = null;
+    errorResObj.hygraphResp = res.hygraphResp;
+    errorResObj.article = res.article;
+    info.push(errorResObj);
+  };
+  const createSuccessResponse = (res, url, id) => {
+    const successResObj = {};
+    errorResObj.id = id;
+    errorResObj.url = url;
+    successResObj.status = "complete";
+    successResObj.result = res.hygraphResp.data.createArticle;
+    successResObj.article = res.article;
+    info.push(successResObj);
+  }
   try {
     for (const link of linkValues) {
+      // console.log(`SENDING ARTICLE:`, link);
       const result = await sendArticle(link, domain);
       console.log(`SEND ARTICLE RESULT:`, result);
-      resObj.article = result.article;
-      resObj.url = link;
-      resObj.id = i;
 
-      resObj.status = "complete";
-      resObj.result = result.hygraphResp?.data?.createArticle?.id;
-      info.push(resObj);
+      if(result.hygraphResp.errors){
+        createErrorResponse(result, link, i);
+      }else {
+        createSuccessResponse(result, link, i);
+      }
       i++;
     }
   } catch (resultWithError) {
     console.log(`API ERROR`, resultWithError);
-    resObj.status = "error";
-    resObj.result = null;
-    resObj.article = resultWithError.article;
-    resObj.url = linkValues[i];
-    resObj.id = i;
-    resObj.hygraphResp = resultWithError.hygraphResp;
-    info.push(resObj);
+    createErrorResponse(resultWithError);
   }
+  console.log(`INFO:`, info);
   return new Response(JSON.stringify(info), {
     headers: { "Content-Type": "application/json" },
   });

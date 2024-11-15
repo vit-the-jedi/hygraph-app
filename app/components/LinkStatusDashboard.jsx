@@ -48,7 +48,7 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
             >
               <h3 className="mb-5 text-1xl">Entry {article.id + 1}</h3>
               <h2 className="text-2xl pb-1">
-                Title: {article.articleData.title}
+                Title: {article?.articleData?.title}
               </h2>
               <span
                 className={`status-indicator absolute border-1 rounded-full ${article.style} top-2 right-2 text-xs px-1`}
@@ -68,7 +68,7 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
                 </p>
               )}
 
-              {article.result && (
+              {article?.result && (
                 <div>
                   <p>Result Id: {article.result} </p>
                   <SecondaryButton
@@ -99,7 +99,8 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
               )}
             </div>
           </li>
-        ))}
+        )
+      )}
       </ol>
     </section>
   );

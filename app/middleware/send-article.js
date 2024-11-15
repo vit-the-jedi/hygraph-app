@@ -52,7 +52,9 @@ const sendArticle = async (link, domain) => {
       }
       const hygraphAst = transpileDocsAstToHygraphAst(docData.body.content);
       if (!hygraphAst)
-        reject({ errors: [{ message: "Error transpiling document" }] });
+        resolve({
+        hygraphResp: { errors: [{ message: "Error transpiling document" }] }
+    });
       const imgUriArray = utils.extractImageUris(docData?.inlineObjects);
       const uploadResults = [];
       let uploadErrors;
@@ -129,13 +131,15 @@ const sendArticle = async (link, domain) => {
       //should find a way to do this earlier and save computation
       const articleCreationResponse = await queries.uploadArticle(article);
       resp.hygraphResp = articleCreationResponse;
-      console.log(`SEND ARTICLE RESP: `, (resp));
+      //console.log(`SEND ARTICLE RESP: `, (resp));
       resolve(resp);
     } catch (err) {
       //code errors or promise rejects from queries end up here
-      console.log(`SEND ARTICLE ERROR: `, (err));
+      //console.log(`SEND ARTICLE ERROR: `, (err));
       resp.hygraphResp = err;
-      reject(resp);
+      //need to resolve from here, as a reject will cause the whole process to stop
+      //we want to log problematic articles and continue on with the rest
+      resolve(resp);
     }
   });
 };
