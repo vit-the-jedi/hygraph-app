@@ -87,7 +87,7 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
 
               <div className="my-3">
                 <span className="text-xs">URL: </span>
-                <a className="text-xs underline" href={article.link}>
+                <a className="text-xs underline" target="_blank" href={article.link}>
                   {article.link}
                 </a>
               </div>
