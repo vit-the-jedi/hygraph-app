@@ -15,7 +15,7 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
       id: index,
       status: articleInfo.status,
       link: articleInfo.url,
-      message: articleInfo?.errors,
+      message: articleInfo?.hygraphResp?.errors[0]?.message,
       result: articleInfo?.result,
       style:
         articleInfo.status === "complete"
@@ -63,7 +63,7 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
                     href={`#error-${article.id}`}
                     className="text-rose-500 underline"
                   >
-                    {article.message[0]}
+                    {article.message}
                   </a>
                 </p>
               )}

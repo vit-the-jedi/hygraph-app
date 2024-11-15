@@ -147,12 +147,15 @@ const queries = {
         //console.log("HYGRAPH RESPONSE: ", respJSON);
         if (respJSON.errors) {
          if(process.env.NODE_ENV === "development") console.log(`HYGRAPH RESPONSE ERROR: `, respJSON.errors.map((error) => error.message));
-          reject(respJSON.errors.map((error) => error.message));
+         const errorObj = {
+           errors: respJSON.errors.map((error) => {return {message: error.message}}),
+         }
+          reject(errorObj);
         }
         resolve(respJSON);
       } catch (err) {
         console.log("HYGRAPH FETCH ERROR: ", err);
-        reject(err);
+        reject({error: {message: err}});
       }
     });
   },

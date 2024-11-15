@@ -29,13 +29,10 @@ export default function UploadDocs({ config }) {
       const res = await fetch(`${url}?${query.toString()}`, {cache: "no-store"});
       const resJSON = await res.json();
       console.log(`API RESP:`, (resJSON));
+      setData(resJSON);
       if (resJSON.errors){
         setErrorMessages(resJSON.errors.map((errorMessages) => errorMessages.message));
-        setData(null);
-      }else {
-        setData(resJSON);
       }
-      
       console.log("data", data);
       setIsLoading(false);
     }

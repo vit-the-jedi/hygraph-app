@@ -39,12 +39,12 @@ async function readDoc(documentId) {
 
 const sendArticle = async (link, domain) => {
   return new Promise(async (resolve, reject) => {
+    const article = new Article();
+    const resp = {
+      article: article,
+      hygraphResp: null,
+    };
     try {
-      const article = new Article();
-      const resp = {
-        article: article,
-        hygraphResp: null,
-      };
       const docId = link.split("d/")[1].split("/")[0];
       const docData = await readDoc(docId);
       if (docData.errors) {
@@ -134,7 +134,8 @@ const sendArticle = async (link, domain) => {
     } catch (err) {
       //code errors or promise rejects from queries end up here
       console.log(`SEND ARTICLE ERROR: `, (err));
-      reject(err);
+      resp.hygraphResp = err;
+      reject(resp);
     }
   });
 };
