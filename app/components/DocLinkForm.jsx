@@ -42,6 +42,8 @@ export default function DocLinkForm() {
             <option value='findhomepros.com'>Find Home Pros</option>
             <option value='protect.com'>Protect</option>
             <option value='free-insurance-quotes.us'>Free Insurance Quotes</option>
+            <option value='simplyjobs.com'>Simply Jobs</option>
+            <option value='searchmynewjob.com'>Search My New Job</option>
           </select>
         </div>
         {inputs.map((input, i, arr) => (

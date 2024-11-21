@@ -1,17 +1,18 @@
 "use strict";
 
-
-
 import fs from "fs";
 const utils = {
   generateSlug: (title) => {
     try {
-      const trimmed = title.split(" ").reduce((acc, curr, i, arr) => {
-        if (i <= 10) {
-          acc.push(curr.toLowerCase());
-        }
-        return acc;
-      }, []).filter((word) => word.match(/[a-z]/gmi));
+      const trimmed = title
+        .split(" ")
+        .reduce((acc, curr, i, arr) => {
+          if (i <= 10) {
+            acc.push(curr.toLowerCase());
+          }
+          return acc;
+        }, [])
+        .filter((word) => word.match(/[a-z]/gim));
       const currentYear = String(new Date().getFullYear());
       if (title.includes(currentYear)) {
         trimmed.push(currentYear);
@@ -26,102 +27,128 @@ const utils = {
   generateDate: () => {
     try {
       return new Date().toISOString().split("T")[0];
-    }catch(e){
+    } catch (e) {
       console.log(`Error generating date: ${e}`);
       return null;
-    } 
+    }
   },
-  extractTitle: (text) => { 
-    const regex = /title:/gmi;
-    try{
+  extractTitle: (text) => {
+    const regex = /title:/gim;
+    try {
       const m = text.match(regex);
-      if(m) return text.replace(regex,"").replace(/\r?\n|\r/g, " ").trim();
+      if (m)
+        return text
+          .replace(regex, "")
+          .replace(/\r?\n|\r/g, " ")
+          .trim();
       else return null;
-    }catch(e){
+    } catch (e) {
       return null;
     }
   },
   extractExcerpt: (text) => {
-    const regex = /excerpt:/gmi;
-    try{
+    const regex = /excerpt:/gim;
+    try {
       const m = text.match(regex);
-      const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").trim();
-      if(m) return t;
+      const t = text
+        .replace(regex, "")
+        .replace(/\r?\n|\r/g, " ")
+        .trim();
+      if (m) return t;
       else return null;
-    }catch(e){
+    } catch (e) {
       return null;
     }
   },
   extractVertical: (text) => {
-    const regex = /vertical:/gmi;
-    try{
+    const regex = /vertical:/gim;
+    try {
       const m = text.match(regex);
-      const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").trim();
-      if(m) return t;
+      const t = text
+        .replace(regex, "")
+        .replace(/\r?\n|\r/g, " ")
+        .trim();
+      if (m) return t;
       else return null;
-    }catch(e){
+    } catch (e) {
       return null;
     }
   },
   extractSubvertical: (text) => {
-    const regex = /subvertical:/gmi;
-    try{
+    const regex = /subvertical:/gim;
+    try {
       const m = text.match(regex);
-      const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").trim();
-      if(m) return t;
+      const t = text
+        .replace(regex, "")
+        .replace(/\r?\n|\r/g, " ")
+        .trim();
+      if (m) return t;
       else return null;
-    }catch(e){
+    } catch (e) {
       return null;
     }
   },
   extractReadTime: (text) => {
-    const regex = /read\s+time:/gmi;
-    try{
+    const regex = /read\s+time:/gim;
+    try {
       const m = text.match(regex);
-      const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").trim();
-      if(m) return t;
+      const t = text
+        .replace(regex, "")
+        .replace(/\r?\n|\r/g, " ")
+        .trim();
+      if (m) return t;
       else return null;
-    }catch(e){
+    } catch (e) {
       return null;
     }
   },
   extractArticleType: (text) => {
-    const regex = /article\s+type:/gmi;
-    try{
+    const regex = /article\s+type:/gim;
+    try {
       const m = text.match(regex);
-      const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").trim();
-      if(m) return t;
+      const t = text
+        .replace(regex, "")
+        .replace(/\r?\n|\r/g, " ")
+        .trim();
+      if (m) return t;
       else return null;
-    }catch(e){
+    } catch (e) {
       return null;
     }
   },
   extractContentTags: (text) => {
     try {
-      const regex = /content\s+tags:/gmi;
+      const regex = /content\s+tags:/gim;
       const m = text.match(regex);
-      const t = text.replace(regex, "").replace(/\r?\n|\r/g, " ").split(",");
+      const t = text
+        .replace(regex, "")
+        .replace(/\r?\n|\r/g, " ")
+        .split(",");
       const tags = t.map((tag) => {
-        return {tagValue: tag.trim()}
+        return { tagValue: tag.trim() };
       });
-      if(m) return tags;
+      if (m) return tags;
       else return null;
-    }catch(e){
+    } catch (e) {
       return null;
     }
   },
   extractMetaKeywords: (metaKeywords) => {
-    try{
+    try {
       const keywords = metaKeywords.match(/content="(.*?)"/);
-      return keywords[0].replace("content=","").replaceAll('"', "").replace(/\r?\n|\r/g, " ");
-    }catch(e){
+      return keywords[0]
+        .replace("content=", "")
+        .replaceAll('"', "")
+        .replace(/\r?\n|\r/g, " ");
+    } catch (e) {
       return null;
-    } 
+    }
   },
   extractImageUris: (data) => {
     try {
       const arr = Object.keys(data).map((key) => {
-        return data[key].inlineObjectProperties.embeddedObject.imageProperties.contentUri;
+        return data[key].inlineObjectProperties.embeddedObject.imageProperties
+          .contentUri;
       });
       return arr;
     } catch (error) {
@@ -130,16 +157,20 @@ const utils = {
     }
   },
   transformDomainToHygraphAPIRef: (domain) => {
-    switch(domain){
+    switch (domain) {
       case "findhomepros.com":
         return "findhomeprosCom";
       case "protect.com":
         return "protectCom";
       case "free-insurance-quotes.us":
         return "freeInsuranceQuotesUs";
+      case "simplyjobs.com":
+        return "simplyjobsCom";
+      case "searchmynewjob.com":
+        return "searchMyNewJobCom";
       default:
         return null;
-    }; 
+    }
   },
   /* can upload by url to hygraph - but doesn't hurt to have this */
   downloadImage: async (url) => {
@@ -162,32 +193,32 @@ const utils = {
     fs.writeFileSync(filePath, buffer);
   },
   /*
-  * @description - locates the id of the image upload result - needed because we switch between legacy and new formats in hygraph
-  * @param {array} uploadResults - array of objects containing the results of the image uploads
-  * @param {number} index - the index of the uploadResults array to locate the id for
-  */
+   * @description - locates the id of the image upload result - needed because we switch between legacy and new formats in hygraph
+   * @param {array} uploadResults - array of objects containing the results of the image uploads
+   * @param {number} index - the index of the uploadResults array to locate the id for
+   */
   locateUploadResultId: function (obj) {
     // Base case: if obj is not an object or is null, return null
-  if (typeof obj !== 'object' || obj === null) {
-    return null;
-  }
+    if (typeof obj !== "object" || obj === null) {
+      return null;
+    }
 
-  // Check if the current object has an 'id' property
-  if (obj.hasOwnProperty('id')) {
-    return obj.id;
-  }
+    // Check if the current object has an 'id' property
+    if (obj.hasOwnProperty("id")) {
+      return obj.id;
+    }
 
-  // If not, iterate over the object's keys
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      const result = this.locateUploadResultId(obj[key]); // Recursively search in the nested object
-      if (result !== null) {
-        return result; // Return the found id if it exists
+    // If not, iterate over the object's keys
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const result = this.locateUploadResultId(obj[key]); // Recursively search in the nested object
+        if (result !== null) {
+          return result; // Return the found id if it exists
+        }
       }
     }
-  }
 
-  return null; // Return null if no id is found
+    return null; // Return null if no id is found
   },
 };
 
