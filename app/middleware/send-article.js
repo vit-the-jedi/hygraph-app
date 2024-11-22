@@ -6,6 +6,8 @@ const { google } = require("googleapis");
 import { utils } from "./utils.js";
 import { queries } from "./queries.js";
 import { transpileDocsAstToHygraphAst } from "./create-ast.js";
+import { GoogleAPIRespError, HygraphRespError } from "../errors/api-errors.js";
+import { CodeError } from "../errors/code-errors.js";
 
 class Article {
   constructor() {
@@ -25,14 +27,14 @@ const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS),
   scopes: ["https://www.googleapis.com/auth/documents"],
 });
-async function readDoc(documentId) {
+async function readDoc(documentId, documentLink) {
   return new Promise(async (resolve, reject) => {
     try {
       const doc = google.docs({ version: "v1", auth });
       const resp = await doc.documents.get({ documentId });
       resolve(resp.data);
     } catch (err) {
-      resolve({ errors: [{ message: err.errors[0].message }] });
+      reject(new GoogleAPIRespError(err.message, null, documentLink, documentId).createError());
     }
   });
 }
@@ -40,21 +42,22 @@ async function readDoc(documentId) {
 const sendArticle = async (link, domain) => {
   return new Promise(async (resolve, reject) => {
     const article = new Article();
-    const resp = {
+    const hygraphApiResp = {
       article: article,
-      hygraphResp: null,
+      result: null,
+      status: "complete",
+      url: link,
+      id: null,
     };
     try {
       const docId = link.split("d/")[1].split("/")[0];
-      const docData = await readDoc(docId);
+      const docData = await readDoc(docId, link);
       if (docData.errors) {
-        resolve(docData);
+        reject(new GoogleAPIRespError(docData.errors[0].message, null, link, docId).createError());
       }
       const hygraphAst = transpileDocsAstToHygraphAst(docData.body.content);
       if (!hygraphAst)
-        resolve({
-        hygraphResp: { errors: [{ message: "Error transpiling document" }] }
-    });
+        reject(new HygraphRespError("Error transpiling document" , docData, link, docId).createError());
       const imgUriArray = utils.extractImageUris(docData?.inlineObjects);
       const uploadResults = [];
       let uploadErrors;
@@ -66,9 +69,7 @@ const sendArticle = async (link, domain) => {
           else uploadResults.push(imgUploadResult);
         }
         if(uploadResults.length > 0 && uploadResults[0].errors){
-          resp.hygraphResp = {};
-          resp.hygraphResp.errors = [{ message: uploadResults[0].error }]
-          resolve(resp);
+          reject(new HygraphRespError(uploadResults[0].errors[0].message, uploadResults[0], link, docId).createError());
         }else {
           //hygraph doesn't throw an error for incorrect image formats, so we need to check for that here
           uploadErrors = uploadResults.filter((result) => {
@@ -130,16 +131,21 @@ const sendArticle = async (link, domain) => {
       //if there was an error creating the assets, return with an error
       //should find a way to do this earlier and save computation
       const articleCreationResponse = await queries.uploadArticle(article);
-      resp.hygraphResp = articleCreationResponse;
-      //console.log(`SEND ARTICLE RESP: `, (resp));
-      resolve(resp);
+      if(articleCreationResponse.errors) {
+        reject(new HygraphRespError(articleCreationResponse.errors[0].message, {article:article}, link, docId).createError());
+      }
+
+      hygraphApiResp.result = articleCreationResponse.data;
+      resolve(hygraphApiResp);
     } catch (err) {
       //code errors or promise rejects from queries end up here
-      //console.log(`SEND ARTICLE ERROR: `, (err));
-      resp.hygraphResp = err;
+      console.log(`SEND ARTICLE ERROR: `, (err));
       //need to resolve from here, as a reject will cause the whole process to stop
       //we want to log problematic articles and continue on with the rest
-      resolve(resp);
+      if(err?.errors[0]?.type && err?.errors[0]?.message && !err?.article){
+        err.article = article;
+      }
+      reject(err);
     }
   });
 };

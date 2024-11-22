@@ -1,5 +1,5 @@
 "use strict";
-
+import { HygraphRespError } from "../errors/api-errors.js";
 const queries = {
   uploadImage: async function (uri) {
     console.log(`UPLOADING IMAGE: `, uri);
@@ -74,14 +74,14 @@ const queries = {
           }),
         });
         const respJSON = await response.json();
-        console.log("HYGRAPH RESPONSE: ", respJSON);
+        //console.log("HYGRAPH RESPONSE: ", respJSON);
         if (respJSON.errors) {
           if(process.env.NODE_ENV === "development") console.log(`HYGRAPH ERROR: `, respJSON.errors);
           reject(respJSON.errors);
         }
         resolve(respJSON);
       } catch (err) {
-        console.log("HYGRAPH ERROR: ", err);
+        //console.log("HYGRAPH ERROR: ", err);
         reject(err);
       }
     })
@@ -109,14 +109,14 @@ const queries = {
           }),
         });
         const respJSON = await response.json();
-        console.log("HYGRAPH RESPONSE: ", respJSON);
+        //console.log("HYGRAPH RESPONSE: ", respJSON);
         if (respJSON.errors) {
           if(process.env.NODE_ENV === "development") console.log(`HYGRAPH ERROR: `, respJSON.errors);
           reject(respJSON.errors);
         }
         resolve(respJSON);
       } catch (err) {
-        console.log("HYGRAPH ERROR: ", err);
+        //console.log("HYGRAPH ERROR: ", err);
         reject(err);
       }
     });
@@ -144,18 +144,10 @@ const queries = {
           }),
         });
         const respJSON = await response.json();
-        //console.log("HYGRAPH RESPONSE: ", respJSON);
-        if (respJSON.errors) {
-         //if(process.env.NODE_ENV === "development") console.log(`HYGRAPH RESPONSE ERROR: `, respJSON.errors.map((error) => error.message));
-         const errorObj = {
-           errors: respJSON.errors.map((error) => {return {message: error.message}}),
-         }
-          reject(errorObj);
-        }
         resolve(respJSON);
       } catch (err) {
-        //console.log("HYGRAPH FETCH ERROR: ", err);
-        resolve({error: {message: err}});
+        //console.log("HYGRAPH FETCH ERROR: ", err); /err.message
+        reject(new HygraphRespError(err.message, null, null, null).createError());
       }
     });
   },

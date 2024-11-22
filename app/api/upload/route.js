@@ -1,50 +1,33 @@
 import { sendArticle } from "../../middleware/send-article.js";
+import { HygraphRespError } from "../../errors/api-errors.js";
+import { CodeError } from "../../errors/code-errors.js";
 
 export async function GET(request) {
   //must pass back an array here
-  let info = [];
+  let allResponses;
   const linkValues = request.nextUrl.searchParams.get("params").split(",");
   const domain = request.nextUrl.searchParams.get("domain");
   let i = 0;
-
-  const createErrorResponse = (res, url, id) => {
-    const errorResObj = {};
-    errorResObj.id = id;
-    errorResObj.url = url;
-    errorResObj.status = "error";
-    errorResObj.result = null;
-    errorResObj.hygraphResp = res.hygraphResp;
-    errorResObj.article = res.article;
-    info.push(errorResObj);
-  };
-  const createSuccessResponse = (res, url, id) => {
-    const successResObj = {};
-    errorResObj.id = id;
-    errorResObj.url = url;
-    successResObj.status = "complete";
-    successResObj.result = res.hygraphResp.data.createArticle;
-    successResObj.article = res.article;
-    info.push(successResObj);
-  }
   try {
-    for (const link of linkValues) {
-      // console.log(`SENDING ARTICLE:`, link);
-      const result = await sendArticle(link, domain);
-      console.log(`SEND ARTICLE RESULT:`, result);
-
-      if(result.hygraphResp.errors){
-        createErrorResponse(result, link, i);
-      }else {
-        createSuccessResponse(result, link, i);
+    const promises = linkValues.map((link, i, arr) => {
+      return sendArticle(link, domain);
+    });
+    allResponses = (await Promise.allSettled(promises)).map((res) => {
+      if (res.status === "fulfilled") {
+        return res.value;
+      } else {
+        return res.reason;
       }
-      i++;
-    }
-  } catch (resultWithError) {
-    console.log(`API ERROR`, resultWithError);
-    createErrorResponse(resultWithError);
+    });
+    //console.log(`ALL RESPONSES:`, allResponses);
+  } catch (err) {
+    const resultWithError = new CodeError(err.message, err.stack, i).createError();
+    console.log(`API CODE ERROR`, resultWithError);
+    return new Response(JSON.stringify([resultWithError]), {
+      headers: { "Content-Type": "application/json" },
+    });
   }
-  console.log(`INFO:`, info);
-  return new Response(JSON.stringify(info), {
+  return new Response(JSON.stringify(allResponses), {
     headers: { "Content-Type": "application/json" },
   });
 }

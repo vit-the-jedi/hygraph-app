@@ -15,7 +15,9 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
       id: index,
       status: articleInfo.status,
       link: articleInfo.url,
-      message: articleInfo?.hygraphResp?.errors[0]?.message,
+      message: articleInfo?.errors[0]?.message,
+      stack: articleInfo?.errors[0]?.stack,
+      errorType: articleInfo?.errors[0]?.type,
       result: articleInfo?.result,
       style:
         articleInfo.status === "complete"
@@ -33,7 +35,8 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
 
   const brand = new URLSearchParams(window.location.search).get("brand");
 
-  const cmsContentEntryLink ="https://studio-us-west-2.hygraph.com/f187a37f-90fe-4ea2-967e-7efd4c0705d3/8766b78326054b9cbd4810df21fa899e/content/3dcdcab60a1f4ab28e8ee37dbac18ded/entry/";
+  const cmsContentEntryLink =
+    "https://studio-us-west-2.hygraph.com/f187a37f-90fe-4ea2-967e-7efd4c0705d3/8766b78326054b9cbd4810df21fa899e/content/3dcdcab60a1f4ab28e8ee37dbac18ded/entry/";
   return (
     <section>
       <ol>
@@ -47,9 +50,16 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
               }`}
             >
               <h3 className="mb-5 text-1xl">Entry {article.id + 1}</h3>
-              <h2 className="text-2xl pb-1">
-                Title: {article?.articleData?.title}
-              </h2>
+              {article?.articleData?.title ? (
+                <h2 className="text-2xl pb-1">
+                  Title: {article.articleData.title}
+                </h2>
+              ) : (
+                <h2 className="text-2xl pb-1">
+                  There was an error before parsing the document
+                </h2>
+              )}
+
               <span
                 className={`status-indicator absolute border-1 rounded-full ${article.style} top-2 right-2 text-xs px-1`}
               >
@@ -57,15 +67,29 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
               </span>
 
               {article.status === "error" && (
-                <p>
-                  Message:{" "}
-                  <a
-                    href={`#error-${article.id}`}
-                    className="text-rose-500 underline"
-                  >
-                    {article.message}
-                  </a>
-                </p>
+                <div>
+                  <p>
+                    Message:{" "}
+                    <a
+                      href={`#error-${article.id}`}
+                      className="text-rose-500 underline"
+                    >
+                      {article.message}
+                    </a>
+                  </p>
+                  <p>
+                    <br />
+                    <br />
+                    Error Type: <span>{article.errorType}</span>
+                    <br />
+                    <br />
+                  </p>
+                  <p className="text-xs">
+                    Stack Trace:
+                    <br />
+                    {article.stack}
+                  </p>
+                </div>
               )}
 
               {article?.result && (
@@ -85,12 +109,18 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
                 </div>
               )}
 
-              <div className="my-3">
-                <span className="text-xs">URL: </span>
-                <a className="text-xs underline" target="_blank" href={article.link}>
-                  {article.link}
-                </a>
-              </div>
+              {article.link && (
+                <div className="my-3">
+                  <span className="text-xs">URL: </span>
+                  <a
+                    className="text-xs underline"
+                    target="_blank"
+                    href={article.link}
+                  >
+                    {article.link}
+                  </a>
+                </div>
+              )}
 
               {article.status === "error" && (
                 <div className="mt-3">
@@ -99,8 +129,7 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
               )}
             </div>
           </li>
-        )
-      )}
+        ))}
       </ol>
     </section>
   );

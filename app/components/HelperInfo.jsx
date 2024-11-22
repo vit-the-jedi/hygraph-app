@@ -29,7 +29,9 @@ export default function HelperInfo({errors}) {
               <p className="text-red-500 pb-2">{item}</p>
               </div>
             <p className='ml-1'>
-              <span id={`error-${index}`}>{errorHelpers.get(item)}</span>
+              <span id={`error-${index}`}>{
+                errorHelpers.get(item) ? errorHelpers.get(item) : "There was an internal issue, please contact the development team with a screenshot of this error."
+                }</span>
             </p>
           </div>        
         </li> 

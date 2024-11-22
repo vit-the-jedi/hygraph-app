@@ -31,7 +31,7 @@ export default function UploadDocs({ config }) {
       const resJSON = await res.json();
       console.log(`API RESP:`, (resJSON));
       setData(resJSON);
-      const errors = resJSON.filter((item) => item.status === "error").map((errorResp) => errorResp.hygraphResp.errors).map((errorMessages) => errorMessages.map((error) => error.message));
+      const errors = resJSON.filter((item) => item.status === "error").map((errorResp) => (errorResp.errors).map((error) => error.message));
       if (errors.length > 0) {
         setErrorMessages(errors);
       }
