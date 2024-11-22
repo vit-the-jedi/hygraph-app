@@ -10,15 +10,23 @@ import SecondaryButton from "./buttons/SecondaryButton";
 
 export default function LinkStatusDashboard({ articleStatusInfo }) {
   const formattedData = articleStatusInfo.map((articleInfo, index, arr) => {
+    let message = null;
+    let stack = null;
+    let errorType = null;
+    if (articleInfo.status === "error") {
+      message = articleInfo.errors[0].message;
+      stack = articleInfo.errors[0].stack;
+      errorType = articleInfo.errors[0].type;
+    }
     return {
       articleData: articleInfo.article,
       id: index,
       status: articleInfo.status,
       link: articleInfo.url,
-      message: articleInfo?.errors[0]?.message,
-      stack: articleInfo?.errors[0]?.stack,
-      errorType: articleInfo?.errors[0]?.type,
-      result: articleInfo?.result,
+      message: message,
+      stack: stack,
+      errorType: errorType,
+      result: articleInfo?.result?.createArticle?.id,
       style:
         articleInfo.status === "complete"
           ? "bg-emerald-400 border-emerald-400"
