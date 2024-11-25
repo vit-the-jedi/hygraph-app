@@ -143,14 +143,10 @@ const sendArticle = async (link, domain) => {
       resolve(hygraphApiResp);
     } catch (err) {
       //code errors or promise rejects from queries end up here
-      //need to resolve from here, as a reject will cause the whole process to stop
-      //we want to log problematic articles and continue on with the rest
-      // if(err?.errors){
-      //   const errMsg = err.errors[0].message;
-      //   const errType = err.errors[0].type;
-      //   if(!err.article) err.article = article;
-      // }
-      console.log(`ERROR: `, err);
+      //reject the promise with a CustomError object
+      err.information.article = article;
+      err.information.id = null;
+      err.information.url = link;
       reject(err);
     }
   });

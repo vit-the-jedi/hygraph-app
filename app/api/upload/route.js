@@ -4,48 +4,55 @@ import { CodeError } from "../../errors/code-errors.js";
 import { CustomError} from "../../errors/custom-error.js";
 
 export async function GET(request) {
-  //must pass back an array here
-  let allResponses;
+  let allResponses = [];
   const linkValues = request.nextUrl.searchParams.get("params").split(",");
   const domain = request.nextUrl.searchParams.get("domain");
   let i = 0;
+
   try {
-    const promises = linkValues.map((link, i, arr) => {
-      return sendArticle(link, domain);
-    });
-    allResponses = (await Promise.allSettled(promises)).map((res) => {
+    // Create an array of promises
+    const promises = linkValues.map((link) => sendArticle(link, domain));
+
+    // Wait for all promises to settle
+    const results = await Promise.allSettled(promises);
+
+    // Process each result
+    allResponses = results.map((res) => {
       if (res.status === "fulfilled") {
         return res.value;
       } else {
-        //promise rejections from either queries.js or send-articles.js contain a CustomError object
-        //throw custom error here, resulting to rejected promise
-        throw res.reason;
+        // Handle rejected promises
+        console.log((res));
+        return res.reason;
       }
     });
   } catch (err) {
-    console.log(`API ERROR: `, (err));
     let resultWithError;
-    switch(err.information.type){
+    const article = err.information?.article;
+    const url = err.information?.url;
+    const id = err.information?.id;
+    switch (err.information.type) {
       case "HygraphRespError":
-        resultWithError = new HygraphRespError(err.message, err.res, err.url, i).createError();
+        resultWithError = new HygraphRespError(err.message, article, url, id).createError();
         break;
       case "CodeError":
         resultWithError = new CodeError(err.message, err.stack, i).createError();
         break;
-        case "GoogleAPIRespError":
-          resultWithError = new GoogleAPIRespError(err.message, err.res, err.url, i).createError();
-          break;
+      case "GoogleAPIRespError":
+        resultWithError = new GoogleAPIRespError(err.message, article, url, id).createError();
+        break;
       default:
         resultWithError = new CodeError(err.message, err.stack, i).createError();
     }
-    //resultWithError = new CodeError(err.message, err.stack, i).createError();
-    //console.log(`API CODE ERROR`, resultWithError);
-    return new Response(JSON.stringify([resultWithError]), {
-      headers: { "Content-Type": "application/json" },
-    });
+    // Add the error to the responses array
+
+    //FIX : Need to keep promises resolving even after a rejection
+    console.log(resultWithError);
+    allResponses.push(resultWithError);
   }
-  return new Response(JSON.stringify(allResponses), {
-    headers: { "Content-Type": "application/json" },
-  });
+
+  // Return the responses
+  // return new Response(JSON.stringify(allResponses), {
+  //   headers: { "Content-Type": "application/json" },
+  // });
 }
-//https://docs.google.com/document/d/18RXNr-4R_EMn2nb_hyWqQoJkhQbaamI2YO9XjqtWBAg/edit
