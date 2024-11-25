@@ -7,7 +7,7 @@ import { utils } from "./utils.js";
 import { queries } from "./queries.js";
 import { transpileDocsAstToHygraphAst } from "./create-ast.js";
 import { GoogleAPIRespError, HygraphRespError } from "../errors/api-errors.js";
-import { CodeError } from "../errors/code-errors.js";
+import { CustomError } from "../errors/custom-error.js";
 
 class Article {
   constructor() {
@@ -101,7 +101,7 @@ const sendArticle = async (link, domain) => {
       if (hygraphAst.contentTag.length > 0) {
         //get the ids if they exist
         const connectTagsObj = {};
-        const tagsFound = await queries.searchForTags(hygraphAst.contentTag.map((tag) => tag.tagValue)); 
+        const tagsFound = await queries.searchForTags(hygraphAst.contentTag.map((tag) => tag.tagValue));        
         const tagIds = tagsFound.data.contentTag.map((tag) => tag.id);
         const diff = hygraphAst.contentTag.length - tagIds.length;
         if (diff > 0) {
@@ -131,20 +131,26 @@ const sendArticle = async (link, domain) => {
       //if there was an error creating the assets, return with an error
       //should find a way to do this earlier and save computation
       const articleCreationResponse = await queries.uploadArticle(article);
-      if(articleCreationResponse.errors) {
-        reject(new HygraphRespError(articleCreationResponse.errors[0].message, {article:article}, link, docId).createError());
-      }
+      // if(articleCreationResponse.errors) {
+      //   reject(articleCreationResponse.errors);
+      // }
 
       hygraphApiResp.result = articleCreationResponse.data;
+      if(articleCreationResponse.errors) {
+        console.log(`throwing from here instead`);
+        reject(new CustomError(articleCreationResponse.errors[0].message, {type: "HygraphRespError"}));
+      }
       resolve(hygraphApiResp);
     } catch (err) {
       //code errors or promise rejects from queries end up here
-      console.log(`SEND ARTICLE ERROR: `, (err));
       //need to resolve from here, as a reject will cause the whole process to stop
       //we want to log problematic articles and continue on with the rest
-      if(err?.errors[0]?.type && err?.errors[0]?.message && !err?.article){
-        err.article = article;
-      }
+      // if(err?.errors){
+      //   const errMsg = err.errors[0].message;
+      //   const errType = err.errors[0].type;
+      //   if(!err.article) err.article = article;
+      // }
+      console.log(`ERROR: `, err);
       reject(err);
     }
   });

@@ -1,6 +1,7 @@
 import { sendArticle } from "../../middleware/send-article.js";
-import { HygraphRespError } from "../../errors/api-errors.js";
+import { HygraphRespError, GoogleAPIRespError } from "../../errors/api-errors.js";
 import { CodeError } from "../../errors/code-errors.js";
+import { CustomError} from "../../errors/custom-error.js";
 
 export async function GET(request) {
   //must pass back an array here
@@ -16,13 +17,29 @@ export async function GET(request) {
       if (res.status === "fulfilled") {
         return res.value;
       } else {
-        return res.reason;
+        //promise rejections from either queries.js or send-articles.js contain a CustomError object
+        //throw custom error here, resulting to rejected promise
+        throw res.reason;
       }
     });
-    //console.log(`ALL RESPONSES:`, allResponses);
   } catch (err) {
-    const resultWithError = new CodeError(err.message, err.stack, i).createError();
-    console.log(`API CODE ERROR`, resultWithError);
+    console.log(`API ERROR: `, (err));
+    let resultWithError;
+    switch(err.information.type){
+      case "HygraphRespError":
+        resultWithError = new HygraphRespError(err.message, err.res, err.url, i).createError();
+        break;
+      case "CodeError":
+        resultWithError = new CodeError(err.message, err.stack, i).createError();
+        break;
+        case "GoogleAPIRespError":
+          resultWithError = new GoogleAPIRespError(err.message, err.res, err.url, i).createError();
+          break;
+      default:
+        resultWithError = new CodeError(err.message, err.stack, i).createError();
+    }
+    //resultWithError = new CodeError(err.message, err.stack, i).createError();
+    //console.log(`API CODE ERROR`, resultWithError);
     return new Response(JSON.stringify([resultWithError]), {
       headers: { "Content-Type": "application/json" },
     });

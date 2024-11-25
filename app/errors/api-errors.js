@@ -6,7 +6,7 @@ export class HygraphRespError extends Error {
     this.url = url;
     this.status = "error";
     this.result = null;
-    this.article = res.article;
+    this.article = res?.article;
     this.errors = [{message: message, type: this.name}];
   }
   createError(){

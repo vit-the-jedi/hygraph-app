@@ -18,20 +18,23 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
       stack = articleInfo.errors[0].stack;
       errorType = articleInfo.errors[0].type;
     }
-    return {
+    const result = {
       articleData: articleInfo.article,
       id: index,
       status: articleInfo.status,
       link: articleInfo.url,
-      message: message,
-      stack: stack,
-      errorType: errorType,
-      result: articleInfo?.result?.createArticle?.id,
       style:
-        articleInfo.status === "complete"
-          ? "bg-emerald-400 border-emerald-400"
-          : "bg-rose-800 border-rose-800",
+      articleInfo.status === "complete"
+        ? "bg-emerald-400 border-emerald-400"
+        : "bg-rose-800 border-rose-800",
     };
+
+    if (message) result.message = message;
+    if (stack) result.stack = stack;
+    if (errorType) result.errorType = errorType;
+    if (articleInfo?.result?.createArticle?.id) result.result = articleInfo.result.createArticle.id;
+
+    return result;
   });
   console.log(formattedData);
 
@@ -92,11 +95,11 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
                     <br />
                     <br />
                   </p>
-                  <p className="text-xs">
+                  {article.stack && <p className="text-xs">
                     Stack Trace:
                     <br />
                     {article.stack}
-                  </p>
+                  </p>}
                 </div>
               )}
 
@@ -127,12 +130,6 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
                   >
                     {article.link}
                   </a>
-                </div>
-              )}
-
-              {article.status === "error" && (
-                <div className="mt-3">
-                  {/* <SecondaryButton style={{marginLeft: '-40px'}} buttonConfig={{text:"Retry", onClick: goToHome}} /> */}
                 </div>
               )}
             </div>

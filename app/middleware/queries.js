@@ -1,5 +1,5 @@
 "use strict";
-import { HygraphRespError } from "../errors/api-errors.js";
+import { CustomError } from "../errors/custom-error.js";
 const queries = {
   uploadImage: async function (uri) {
     console.log(`UPLOADING IMAGE: `, uri);
@@ -25,9 +25,12 @@ const queries = {
           }),
         });
         const respJSON = await response.json();
+        if(respJSON.errors){
+          reject(new CustomError(respJSON.errors[0].message, {type: "HygraphRespError"}));
+        }
         resolve(respJSON);
       } catch (err) {
-        reject(err);
+        reject(new CustomError(err.message, {type: "CodeError"}));
       }
     });
   },
@@ -45,10 +48,12 @@ const queries = {
           )}`,
         });
         const respJSON = await response.json();
-        console.log(`LEGACY RESPONSE: `, respJSON);
+        if(respJSON.errors){
+          reject(new CustomError(respJSON.errors[0].message, {type: "HygraphRespError"}));
+        }
         resolve(respJSON);
       } catch (err) {
-        reject(err);
+        reject(new CustomError(err.message, {type: "CodeError"}));
       }
     });
   },
@@ -74,52 +79,14 @@ const queries = {
           }),
         });
         const respJSON = await response.json();
-        //console.log("HYGRAPH RESPONSE: ", respJSON);
-        if (respJSON.errors) {
-          if(process.env.NODE_ENV === "development") console.log(`HYGRAPH ERROR: `, respJSON.errors);
-          reject(respJSON.errors);
+        if(respJSON.errors){
+          reject(new CustomError(respJSON.errors[0].message, {type: "HygraphRespError"}));
         }
         resolve(respJSON);
       } catch (err) {
-        //console.log("HYGRAPH ERROR: ", err);
-        reject(err);
+        reject(new CustomError(err.message, {type: "CodeError"}));
       }
     })
-  },
-  createTag: async function (tag) {
-    const query = `mutation createContentTag($tag: ContentTagCreateInput!){
-                    createContentTag(data: $tag)
-                      {
-                        id
-                      }
-                    }`;
-    return new Promise(async (resolve, reject) => {
-      try {
-        const response = await fetch(process.env.API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            //Authorization: `Bearer ${apiKeyMap[brand].key}`,
-          },
-          body: JSON.stringify({
-            query: query,
-            variables: {
-              tag: tag,
-            },
-          }),
-        });
-        const respJSON = await response.json();
-        //console.log("HYGRAPH RESPONSE: ", respJSON);
-        if (respJSON.errors) {
-          if(process.env.NODE_ENV === "development") console.log(`HYGRAPH ERROR: `, respJSON.errors);
-          reject(respJSON.errors);
-        }
-        resolve(respJSON);
-      } catch (err) {
-        //console.log("HYGRAPH ERROR: ", err);
-        reject(err);
-      }
-    });
   },
   uploadArticle: async function (article) {
     const query = `mutation createArticle($article: ArticleCreateInput!){
@@ -144,10 +111,12 @@ const queries = {
           }),
         });
         const respJSON = await response.json();
+        if(respJSON.errors){
+          reject(new CustomError(respJSON.errors[0].message, {type: "HygraphRespError"}));
+        }
         resolve(respJSON);
       } catch (err) {
-        //console.log("HYGRAPH FETCH ERROR: ", err); /err.message
-        reject(new HygraphRespError(err.message, null, null, null).createError());
+        reject(new CustomError(err.message, {type: "CodeError"}));
       }
     });
   },
