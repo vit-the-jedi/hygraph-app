@@ -1,3 +1,4 @@
+
 "use strict";
 
 import { createRequire } from "module";
@@ -7,6 +8,7 @@ import { utils } from "./utils.js";
 import { queries } from "./queries.js";
 import { transpileDocsAstToHygraphAst } from "./create-ast.js";
 import { CustomError } from "../errors/custom-error.js";
+
 
 class Article {
   constructor() {
@@ -33,12 +35,19 @@ async function readDoc(documentId, documentLink) {
       const resp = await doc.documents.get({ documentId });
       resolve(resp.data);
     } catch (err) {
-      console.log(err);
       reject(new CustomError(err.errors[0].message, {type: "GoogleRespError"}));
     }
   });
 }
-
+/**
+ * Sends an article to Hygraph by reading a Google Doc, transpiling its content, and uploading it.
+ *
+ * @param {string} link - The link to the Google Doc.
+ * @param {string} domain - The domain associated with the article.
+ * @returns {Promise<Object>} A promise that resolves to an object containing the article and the result of the upload.
+ * @throws {CustomError} Throws a custom error if any step in the process fails. Custom errors should have a type passed.
+ * @see CustomError
+ */
 const sendArticle = async (link, domain) => {
   return new Promise(async (resolve, reject) => {
     const article = new Article();
@@ -52,16 +61,21 @@ const sendArticle = async (link, domain) => {
     try {
       const docId = link.split("d/")[1].split("/")[0];
       const docData = await readDoc(docId, link);
-      console.log(docData);
+      //if hygraph responds with an array of errors, throw the first one
       if (docData.errors) {
         reject(new CustomError(docData.errors[0].message, {type: "GoogleRespError"}));
       }
       const hygraphAst = transpileDocsAstToHygraphAst(docData.body.content);
+      //if there is an issue creating the AST, throw an error
+      //currently, a generic error is thrown from the catch block below, but the error could be
+      //in any part of the AST creation process either in create-ast.js or utils.js
+      //if no code errors occur, but the AST is not created, the error will be thrown from here
       if (!hygraphAst)
         reject(new CustomError('Error transpiling document', {type: "HygraphRespError"}));
       const imgUriArray = utils.extractImageUris(docData?.inlineObjects);
       const uploadResults = [];
       let uploadErrors;
+      //check if there are images in the google document
       if (imgUriArray) {
         for (const imgUri of imgUriArray.slice().reverse()) {
           const imgUploadResult = await queries.uploadImage(imgUri);
@@ -69,6 +83,7 @@ const sendArticle = async (link, domain) => {
           if(imgUploadResult.errors) uploadErrors = imgUploadResult.errors.map((e)=>e);
           else uploadResults.push(imgUploadResult);
         }
+        //if we have an upload response and it contains errors, reject the promise
         if(uploadResults.length > 0 && uploadResults[0].errors){
           reject(new CustomError('Error uploading image(s)', {type: "HygraphRespError"}));
         }else {
@@ -79,7 +94,7 @@ const sendArticle = async (link, domain) => {
             }
           });
         }
-        //if no errors, continue on with the article creation
+        //if no errors in image upload, continue on with the article creation
         if (uploadErrors.length === 0) {
           //console.log(`UPLOAD RESULTS`, uploadResults);
           article.coverImage = {
@@ -114,6 +129,7 @@ const sendArticle = async (link, domain) => {
         //console.log(`CONNECT TAGS OBJ: `, connectTagsObj);
         article.contentTag = connectTagsObj;
       }
+      //set all article properties
       const genericSubvertical = domain === "findhomepros.com" ? "home-services" : "insurance";
       article.articleType = hygraphAst.articleType || "article";
       article.title = hygraphAst.title;
@@ -127,16 +143,19 @@ const sendArticle = async (link, domain) => {
       article.readTime = hygraphAst.readTime || "5 min read";
       article.domain = utils.transformDomainToHygraphAPIRef(domain);
 
+      //upload the article
       const articleCreationResponse = await queries.uploadArticle(article);
 
       hygraphApiResp.result = articleCreationResponse.data;
+      //errors from hygraph will be in the errors array
       if(articleCreationResponse.errors) {
-        console.log(`throwing from here instead`);
         reject(new CustomError(articleCreationResponse.errors[0].message, {type: "HygraphRespError"}));
       }
       resolve(hygraphApiResp);
     } catch (err) {
-      console.log(err);
+      //catch-all for any code errors that pop up in article creation
+      //again, these code errors can surface from anywhere in the article creation tree
+      //the stack trace may will lead here, but the error could be in any of the underlying functions or imports
       reject(new CustomError(err.message, {type: "CodeError", stack: err.stack}));
     }
   });
