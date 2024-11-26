@@ -7,6 +7,7 @@ class CustomError extends Error {
     this.information = information;
     this.status = "error";
     this.information.message = message;
+    this.information.stack = this?.stack;
   }
 }
 

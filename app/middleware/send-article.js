@@ -144,12 +144,13 @@ const sendArticle = async (link, domain) => {
       }
       resolve(hygraphApiResp);
     } catch (err) {
+      console.log(err);
       //code errors or promise rejects from queries end up here
       //reject the promise with a CustomError object
-      err.information.article = article;
-      err.information.id = null;
-      err.information.url = link;
-      reject(err);
+      // err.information.article = article;
+      // err.information.id = null;
+      // err.information.url = link;
+      reject(new CustomError(err.message, {type: "CodeError", stack: err.stack}));
     }
   });
 };
