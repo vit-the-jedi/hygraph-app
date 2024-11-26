@@ -1,3 +1,4 @@
+
 "use strict";
 
 import { createRequire } from "module";
@@ -6,6 +7,8 @@ const { google } = require("googleapis");
 import { utils } from "./utils.js";
 import { queries } from "./queries.js";
 import { transpileDocsAstToHygraphAst } from "./create-ast.js";
+import { CustomError } from "../errors/custom-error.js";
+
 
 class Article {
   constructor() {
@@ -17,6 +20,7 @@ class Article {
     this.metaKeywords = null;
     this.coverImage = null;
     this.domain = null;
+    this.contentTag = null;
   }
 }
 
@@ -24,38 +28,54 @@ const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS),
   scopes: ["https://www.googleapis.com/auth/documents"],
 });
-async function readDoc(documentId) {
+async function readDoc(documentId, documentLink) {
   return new Promise(async (resolve, reject) => {
     try {
       const doc = google.docs({ version: "v1", auth });
       const resp = await doc.documents.get({ documentId });
       resolve(resp.data);
     } catch (err) {
-      resolve({ errors: [{ message: err.errors[0].message }] });
+      reject(new CustomError(err.errors[0].message, {type: "GoogleRespError"}));
     }
   });
 }
-
+/**
+ * Sends an article to Hygraph by reading a Google Doc, transpiling its content, and uploading it.
+ *
+ * @param {string} link - The link to the Google Doc.
+ * @param {string} domain - The domain associated with the article.
+ * @returns {Promise<Object>} A promise that resolves to an object containing the article and the result of the upload.
+ * @throws {CustomError} Throws a custom error if any step in the process fails. Custom errors should have a type passed.
+ * @see CustomError
+ */
 const sendArticle = async (link, domain) => {
   return new Promise(async (resolve, reject) => {
+    const article = new Article();
+    const hygraphApiResp = {
+      article: article,
+      result: null,
+      status: "complete",
+      url: link,
+      id: null,
+    };
     try {
-      const article = new Article();
-      const resp = {
-        article: article,
-        hygraphResp: null,
-      };
       const docId = link.split("d/")[1].split("/")[0];
-      const docData = await readDoc(docId);
+      const docData = await readDoc(docId, link);
+      //if hygraph responds with an array of errors, throw the first one
       if (docData.errors) {
-        resolve(docData);
+        reject(new CustomError(docData.errors[0].message, {type: "GoogleRespError"}));
       }
       const hygraphAst = transpileDocsAstToHygraphAst(docData.body.content);
-      console.log(`AST`, (hygraphAst));
+      //if there is an issue creating the AST, throw an error
+      //currently, a generic error is thrown from the catch block below, but the error could be
+      //in any part of the AST creation process either in create-ast.js or utils.js
+      //if no code errors occur, but the AST is not created, the error will be thrown from here
       if (!hygraphAst)
-        reject({ errors: [{ message: "Error transpiling document" }] });
+        reject(new CustomError('Error transpiling document', {type: "HygraphRespError"}));
       const imgUriArray = utils.extractImageUris(docData?.inlineObjects);
       const uploadResults = [];
       let uploadErrors;
+      //check if there are images in the google document
       if (imgUriArray) {
         for (const imgUri of imgUriArray.slice().reverse()) {
           const imgUploadResult = await queries.uploadImage(imgUri);
@@ -63,10 +83,9 @@ const sendArticle = async (link, domain) => {
           if(imgUploadResult.errors) uploadErrors = imgUploadResult.errors.map((e)=>e);
           else uploadResults.push(imgUploadResult);
         }
-        if(uploadResults[0].error){
-          resp.hygraphResp = {};
-          resp.hygraphResp.errors = [{ message: uploadResults[0].error }]
-          resolve(resp);
+        //if we have an upload response and it contains errors, reject the promise
+        if(uploadResults.length > 0 && uploadResults[0].errors){
+          reject(new CustomError('Error uploading image(s)', {type: "HygraphRespError"}));
         }else {
           //hygraph doesn't throw an error for incorrect image formats, so we need to check for that here
           uploadErrors = uploadResults.filter((result) => {
@@ -75,14 +94,13 @@ const sendArticle = async (link, domain) => {
             }
           });
         }
-        //if no errors, continue on with the article creation
+        //if no errors in image upload, continue on with the article creation
         if (uploadErrors.length === 0) {
-          console.log(`UPLOAD RESULTS`, uploadResults);
-          //${uploadResults[0].data.createAsset.id}
+          //console.log(`UPLOAD RESULTS`, uploadResults);
           article.coverImage = {
             connect: { id: utils.locateUploadResultId(uploadResults[0])},
           };
-          console.log(`COVER IMAGE`, article.coverImage);
+          //console.log(`COVER IMAGE`, article.coverImage);
           if (uploadResults[1]) {
             article.secondaryImage = {
               connect: { id: utils.locateUploadResultId(uploadResults[1])},
@@ -95,6 +113,23 @@ const sendArticle = async (link, domain) => {
           }
         }
       }
+      if (hygraphAst.contentTag.length > 0) {
+        //get the ids if they exist
+        const connectTagsObj = {};
+        const tagsFound = await queries.searchForTags(hygraphAst.contentTag.map((tag) => tag.tagValue));        
+        const tagIds = tagsFound.data.contentTag.map((tag) => tag.id);
+        const diff = hygraphAst.contentTag.length - tagIds.length;
+        if (diff > 0) {
+          connectTagsObj.create = [];
+          for (const tag of hygraphAst.contentTag.slice(diff + 1)) {
+            connectTagsObj.create.push({tagValue: tag.tagValue });
+          }
+        }
+        connectTagsObj.connect = tagIds.map((id) => { return {id:id}});
+        //console.log(`CONNECT TAGS OBJ: `, connectTagsObj);
+        article.contentTag = connectTagsObj;
+      }
+      //set all article properties
       const genericSubvertical = domain === "findhomepros.com" ? "home-services" : "insurance";
       article.articleType = hygraphAst.articleType || "article";
       article.title = hygraphAst.title;
@@ -108,15 +143,20 @@ const sendArticle = async (link, domain) => {
       article.readTime = hygraphAst.readTime || "5 min read";
       article.domain = utils.transformDomainToHygraphAPIRef(domain);
 
-      //if there was an error creating the assets, return with an error
-      //should find a way to do this earlier and save computation
+      //upload the article
       const articleCreationResponse = await queries.uploadArticle(article);
-      resp.hygraphResp = articleCreationResponse;
-      resolve(resp);
+
+      hygraphApiResp.result = articleCreationResponse.data;
+      //errors from hygraph will be in the errors array
+      if(articleCreationResponse.errors) {
+        reject(new CustomError(articleCreationResponse.errors[0].message, {type: "HygraphRespError"}));
+      }
+      resolve(hygraphApiResp);
     } catch (err) {
-      console.trace();
-      console.log(err);
-      reject({ errors: [{ message: err.message ? err.message : err }] });
+      //catch-all for any code errors that pop up in article creation
+      //again, these code errors can surface from anywhere in the article creation tree
+      //the stack trace may will lead here, but the error could be in any of the underlying functions or imports
+      reject(new CustomError(err.message, {type: "CodeError", stack: err.stack}));
     }
   });
 };

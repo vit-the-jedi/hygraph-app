@@ -1,46 +1,42 @@
 import { sendArticle } from "../../middleware/send-article.js";
 
 export async function GET(request) {
-  //must pass back an array here
-  let info = [];
+  let allResponses = [];
   const linkValues = request.nextUrl.searchParams.get("params").split(",");
   const domain = request.nextUrl.searchParams.get("domain");
   let i = 0;
-  try{
-    for (const link of linkValues) {
-      const result = await sendArticle(link, domain);
-      console.log(`SEND ARTICLE RESULT:`, (result));
-      const resObj = {};
-      resObj.article = result.article;
-      resObj.url = link;
-      resObj.id = i;
-  
-      const hygraphRespErrors = result?.hygraphResp?.errors;
-  
-      if (hygraphRespErrors && hygraphRespErrors.length > 0) {
-        resObj.status = "error";
-        resObj.errors = [];
-        hygraphRespErrors.forEach((error) => {
-          resObj.errors.push(error.message);
-        });
-        resObj.result = null;
+
+  try {
+    // Create an array of promises
+    const promises = linkValues.map((link) => sendArticle(link, domain));
+
+    // Wait for all promises to settle
+    const results = await Promise.allSettled(promises);
+
+    // Process each result
+    allResponses = results.map((res, i) => {
+      console.log(res, i);
+      if (res.status === "fulfilled") {
+        return res.value;
       } else {
-        resObj.status = "complete";
-        resObj.result = result.hygraphResp?.data?.createArticle?.id;
+        // Handle rejected promises
+        return res.reason;
       }
-      info.push(resObj);
-      i++;
-    }
-    return new Response(JSON.stringify(info,), {
-      headers: { "Content-Type": "application/json" },
     });
-  }catch(err){
+  } catch (err) {
     console.log(err);
-    return new Response(JSON.stringify(err), {
-      headers: { "Content-Type": "application/json" },
+    //FIX : Need to keep promises resolving even after a rejection
+    allResponses.push({
+      status: "error",
+      information: {
+        message: err.message,
+        stack: err.stack,
+        type: "NextJSRouterError",
+      },
     });
   }
-  
-
+  // Return the responses
+  return new Response(JSON.stringify(allResponses), {
+    headers: { "Content-Type": "application/json" },
+  });
 }
-//https://docs.google.com/document/d/18RXNr-4R_EMn2nb_hyWqQoJkhQbaamI2YO9XjqtWBAg/edit

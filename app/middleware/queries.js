@@ -1,5 +1,5 @@
 "use strict";
-
+import { CustomError } from "../errors/custom-error.js";
 const queries = {
   uploadImage: async function (uri) {
     console.log(`UPLOADING IMAGE: `, uri);
@@ -25,9 +25,12 @@ const queries = {
           }),
         });
         const respJSON = await response.json();
+        if(respJSON.errors){
+          reject(new CustomError(respJSON.errors[0].message, {type: "HygraphRespError"}));
+        }
         resolve(respJSON);
       } catch (err) {
-        reject(err);
+        reject(new CustomError(err.message, {type: "CodeError"}));
       }
     });
   },
@@ -45,12 +48,45 @@ const queries = {
           )}`,
         });
         const respJSON = await response.json();
-        console.log(`LEGACY RESPONSE: `, respJSON);
+        if(respJSON.errors){
+          reject(new CustomError(respJSON.errors[0].message, {type: "HygraphRespError"}));
+        }
         resolve(respJSON);
       } catch (err) {
-        reject(err);
+        reject(new CustomError(err.message, {type: "CodeError"}));
       }
     });
+  },
+  searchForTags: async function (tags) {
+        const query = `query searchTags($tags: [String!]!) {
+  contentTag(stage: DRAFT where: {tagValue_in: $tags}) {
+    id
+  }
+}`;
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await fetch(process.env.API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            //Authorization: `Bearer ${apiKeyMap[brand].key}`,
+          },
+          body: JSON.stringify({
+            query: query,
+            variables: {
+              tags: tags,
+            },
+          }),
+        });
+        const respJSON = await response.json();
+        if(respJSON.errors){
+          reject(new CustomError(respJSON.errors[0].message, {type: "HygraphRespError"}));
+        }
+        resolve(respJSON);
+      } catch (err) {
+        reject(new CustomError(err.message, {type: "CodeError"}));
+      }
+    })
   },
   uploadArticle: async function (article) {
     const query = `mutation createArticle($article: ArticleCreateInput!){
@@ -75,11 +111,12 @@ const queries = {
           }),
         });
         const respJSON = await response.json();
-        console.log("HYGRAPH RESPONSE: ", respJSON);
+        if(respJSON.errors){
+          reject(new CustomError(respJSON.errors[0].message, {type: "HygraphRespError"}));
+        }
         resolve(respJSON);
       } catch (err) {
-        console.log("HYGRAPH ERROR: ", err);
-        reject(err);
+        reject(new CustomError(err.message, {type: "CodeError"}));
       }
     });
   },

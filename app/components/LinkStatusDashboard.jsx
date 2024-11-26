@@ -10,18 +10,31 @@ import SecondaryButton from "./buttons/SecondaryButton";
 
 export default function LinkStatusDashboard({ articleStatusInfo }) {
   const formattedData = articleStatusInfo.map((articleInfo, index, arr) => {
-    return {
-      articleData: articleInfo.article,
+    let message = null;
+    let stack = null;
+    let errorType = null;
+    if (articleInfo.status === "error") {
+      message = articleInfo.information.message;
+      stack = articleInfo.information.stack;
+      errorType = articleInfo.information.type;
+    }
+    const result = {
+      articleData: articleInfo?.article,
       id: index,
       status: articleInfo.status,
-      link: articleInfo.url,
-      message: articleInfo?.errors,
-      result: articleInfo?.result,
+      link: articleInfo?.information?.url ? articleInfo?.information?.url : articleInfo?.url,
       style:
-        articleInfo.status === "complete"
-          ? "bg-emerald-400 border-emerald-400"
-          : "bg-rose-800 border-rose-800",
+      articleInfo.status === "complete"
+        ? "bg-emerald-400 border-emerald-400"
+        : "bg-rose-800 border-rose-800",
     };
+
+    if (message) result.message = message;
+    if (stack) result.stack = stack;
+    if (errorType) result.errorType = errorType;
+    if (articleInfo?.result?.createArticle?.id) result.result = articleInfo.result.createArticle.id;
+
+    return result;
   });
   console.log(formattedData);
 
@@ -33,7 +46,8 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
 
   const brand = new URLSearchParams(window.location.search).get("brand");
 
-  const cmsContentEntryLink ="https://studio-us-west-2.hygraph.com/3cf63a4c-ac4c-4400-aba2-bf68086746fa/1368436c95744d638c0242f9a7a7a2a9/content/f144b3a55cb442479d0f11c3ef85c2ca/entry/";
+  const cmsContentEntryLink =
+    "https://studio-us-west-2.hygraph.com/f187a37f-90fe-4ea2-967e-7efd4c0705d3/8766b78326054b9cbd4810df21fa899e/content/3dcdcab60a1f4ab28e8ee37dbac18ded/entry/";
   return (
     <section>
       <ol>
@@ -47,9 +61,19 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
               }`}
             >
               <h3 className="mb-5 text-1xl">Entry {article.id + 1}</h3>
-              <h2 className="text-2xl pb-1">
-                Title: {article.articleData.title}
-              </h2>
+              {article?.articleData?.title ? (
+                <h2 className="text-2xl pb-1">
+                  Title: {article.articleData.title}
+                </h2>
+              ) : (
+                <h2 className="text-2xl pb-1">
+                  {article?.errorType === "GoogleRespError" && <span>There was an error before parsing the document</span>}
+                  {article?.errorType === "HygraphRespError" && <span>There was an error uploading the document</span>}
+                  {article?.errorType === "NextJSRouterError" || article?.errorType === "CodeError" && <span>There was an internal error</span>}
+
+                </h2>
+              )}
+
               <span
                 className={`status-indicator absolute border-1 rounded-full ${article.style} top-2 right-2 text-xs px-1`}
               >
@@ -57,18 +81,32 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
               </span>
 
               {article.status === "error" && (
-                <p>
-                  Message:{" "}
-                  <a
-                    href={`#error-${article.id}`}
-                    className="text-rose-500 underline"
-                  >
-                    {article.message[0]}
-                  </a>
-                </p>
+                <div>
+                  <p>
+                    Message:{" "}
+                    <a
+                      href={`#error-${article.id}`}
+                      className="text-rose-500 underline"
+                    >
+                      {article.message}
+                    </a>
+                  </p>
+                  <p>
+                    <br />
+                    <br />
+                    Error Type: <span>{article.errorType}</span>
+                    <br />
+                    <br />
+                  </p>
+                  {article.stack && <p className="text-xs">
+                    Stack Trace:
+                    <br />
+                    {article.stack}
+                  </p>}
+                </div>
               )}
 
-              {article.result && (
+              {article?.result && (
                 <div>
                   <p>Result Id: {article.result} </p>
                   <SecondaryButton
@@ -85,16 +123,16 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
                 </div>
               )}
 
-              <div className="my-3">
-                <span className="text-xs">URL: </span>
-                <a className="text-xs underline" href={article.link}>
-                  {article.link}
-                </a>
-              </div>
-
-              {article.status === "error" && (
-                <div className="mt-3">
-                  {/* <SecondaryButton style={{marginLeft: '-40px'}} buttonConfig={{text:"Retry", onClick: goToHome}} /> */}
+              {article.link && (
+                <div className="my-3">
+                  <span className="text-xs">URL: </span>
+                  <a
+                    className="text-xs underline"
+                    target="_blank"
+                    href={article.link}
+                  >
+                    {article.link}
+                  </a>
                 </div>
               )}
             </div>

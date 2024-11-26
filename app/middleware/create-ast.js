@@ -220,6 +220,13 @@ const transpileDocsAstToHygraphAst = (contentObj) => {
               element = null;
             }
           }
+          if (!hygraphAst.contentTag) {
+            const contentTagMatch = utils.extractContentTags(text);
+            if (contentTagMatch) {
+              hygraphAst.contentTag = contentTagMatch;
+              element = null;
+            }
+          }
         }
       }
     }
@@ -232,6 +239,7 @@ const transpileDocsAstToHygraphAst = (contentObj) => {
   return hygraphAst;
 };
 
+
 class HygraphAst {
   constructor() {
     this.title = null;
@@ -242,6 +250,7 @@ class HygraphAst {
     this.subvertical = null;
     this.articleType = null;
     this.readTime = null;
+    this.contentTag = null;
   }
 }
 

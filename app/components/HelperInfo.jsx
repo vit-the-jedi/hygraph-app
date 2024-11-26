@@ -12,6 +12,7 @@ export default function HelperInfo({errors}) {
   errorHelpers.set('Expected value to have between 1 and 300 characters.', 'There was an issue locating an excerpt, this can happen because the document is malformed.');
   errorHelpers.set('Mutation failed due to permission errors', 'There was an issue uploading an image asset due to permission errors in Hygraph. Update permissions to allow asset creation and try again.');
   errorHelpers.set('Error uploading image(s)', 'There was an issue uploading an image asset. Ensure the image is a valid format and try again.');
+  errorHelpers.set('a relational filter on "coverImage" of "Article" used in your mutation could not be resolved, please make sure all referred documents exist', 'An issue occurred while uploading an image. Try again or contact support.');
 
   return (
     <aside className="bg-indigo-900 pt-3 pb-4 px-3 my-10 rounded-md border-l-4 border-indigo-500">
@@ -28,7 +29,9 @@ export default function HelperInfo({errors}) {
               <p className="text-red-500 pb-2">{item}</p>
               </div>
             <p className='ml-1'>
-              <span id={`error-${index}`}>{errorHelpers.get(item)}</span>
+              <span id={`error-${index}`}>{
+                errorHelpers.get(item) ? errorHelpers.get(item) : "There was an internal issue, please contact the development team with a screenshot of this error."
+                }</span>
             </p>
           </div>        
         </li> 
