@@ -1,7 +1,4 @@
 import { sendArticle } from "../../middleware/send-article.js";
-import { HygraphRespError, GoogleAPIRespError } from "../../errors/api-errors.js";
-import { CodeError } from "../../errors/code-errors.js";
-import { CustomError} from "../../errors/custom-error.js";
 
 export async function GET(request) {
   let allResponses = [];
@@ -27,30 +24,17 @@ export async function GET(request) {
       }
     });
   } catch (err) {
-    // let resultWithError;
-    // const article = err.article;
-    // const url = err.url;
-    // const id = err.id;
-    // switch (err.information.type) {
-    //   case "HygraphRespError":
-    //     resultWithError = new HygraphRespError(err.message, article, url, id).createError();
-    //     break;
-    //   case "CodeError":
-    //     resultWithError = new CodeError(err.message, err.stack, i).createError();
-    //     break;
-    //   case "GoogleAPIRespError":
-    //     resultWithError = new GoogleAPIRespError(err.message, article, url, id).createError();
-    //     break;
-    //   default:
-    //     resultWithError = new CodeError(err.message, err.stack, i).createError();
-    // }
-    // Add the error to the responses array
-
+    console.log(err);
     //FIX : Need to keep promises resolving even after a rejection
-    allResponses.push(resultWithError);
+    allResponses.push({
+      status: "error",
+      information: {
+        message: err.message,
+        stack: err.stack,
+        type: "NextJSRouterError",
+      },
+    });
   }
-
-  console.log((allResponses))
   // Return the responses
   return new Response(JSON.stringify(allResponses), {
     headers: { "Content-Type": "application/json" },

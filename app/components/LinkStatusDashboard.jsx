@@ -19,10 +19,10 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
       errorType = articleInfo.information.type;
     }
     const result = {
-      articleData: articleInfo.article,
+      articleData: articleInfo?.article,
       id: index,
       status: articleInfo.status,
-      link: articleInfo?.information?.url ? articleInfo?.information?.url : articleInfo.url,
+      link: articleInfo?.information?.url ? articleInfo?.information?.url : articleInfo?.url,
       style:
       articleInfo.status === "complete"
         ? "bg-emerald-400 border-emerald-400"
@@ -69,6 +69,7 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
                 <h2 className="text-2xl pb-1">
                   {article?.errorType === "GoogleRespError" && <span>There was an error before parsing the document</span>}
                   {article?.errorType === "HygraphRespError" && <span>There was an error uploading the document</span>}
+                  {article?.errorType === "NextJSRouterError" || article?.errorType === "CodeError" && <span>There was an internal error</span>}
 
                 </h2>
               )}

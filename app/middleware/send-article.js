@@ -6,7 +6,6 @@ const { google } = require("googleapis");
 import { utils } from "./utils.js";
 import { queries } from "./queries.js";
 import { transpileDocsAstToHygraphAst } from "./create-ast.js";
-import { GoogleAPIRespError, HygraphRespError } from "../errors/api-errors.js";
 import { CustomError } from "../errors/custom-error.js";
 
 class Article {
@@ -83,7 +82,6 @@ const sendArticle = async (link, domain) => {
         //if no errors, continue on with the article creation
         if (uploadErrors.length === 0) {
           //console.log(`UPLOAD RESULTS`, uploadResults);
-          //${uploadResults[0].data.createAsset.id}
           article.coverImage = {
             connect: { id: utils.locateUploadResultId(uploadResults[0])},
           };
@@ -124,18 +122,12 @@ const sendArticle = async (link, domain) => {
       article.excerpt = hygraphAst.excerpt;
       article.content = hygraphAst.ast;
       article.metaKeywords = hygraphAst.metaKeywords;
-      // article.contentTag = hygraphAst.contentTag;
       article.vertical = hygraphAst.vertical || genericSubvertical;
       article.subvertical = hygraphAst.subvertical || null;
       article.readTime = hygraphAst.readTime || "5 min read";
       article.domain = utils.transformDomainToHygraphAPIRef(domain);
-      //if(process.env.NODE_ENV === "development") console.log(`PARSED ARTICLE: `, article);
-      //if there was an error creating the assets, return with an error
-      //should find a way to do this earlier and save computation
+
       const articleCreationResponse = await queries.uploadArticle(article);
-      // if(articleCreationResponse.errors) {
-      //   reject(articleCreationResponse.errors);
-      // }
 
       hygraphApiResp.result = articleCreationResponse.data;
       if(articleCreationResponse.errors) {
@@ -145,11 +137,6 @@ const sendArticle = async (link, domain) => {
       resolve(hygraphApiResp);
     } catch (err) {
       console.log(err);
-      //code errors or promise rejects from queries end up here
-      //reject the promise with a CustomError object
-      // err.information.article = article;
-      // err.information.id = null;
-      // err.information.url = link;
       reject(new CustomError(err.message, {type: "CodeError", stack: err.stack}));
     }
   });
