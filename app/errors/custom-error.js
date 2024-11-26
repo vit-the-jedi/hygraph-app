@@ -5,6 +5,8 @@ class CustomError extends Error {
     super(message);
     this.name = this.constructor.name;
     this.information = information;
+    this.status = "error";
+    this.information.message = message;
   }
 }
 

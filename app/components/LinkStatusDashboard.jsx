@@ -14,15 +14,15 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
     let stack = null;
     let errorType = null;
     if (articleInfo.status === "error") {
-      message = articleInfo.errors[0].message;
-      stack = articleInfo.errors[0].stack;
-      errorType = articleInfo.errors[0].type;
+      message = articleInfo.information.message;
+      stack = articleInfo.information.stack;
+      errorType = articleInfo.information.type;
     }
     const result = {
       articleData: articleInfo.article,
       id: index,
       status: articleInfo.status,
-      link: articleInfo.url,
+      link: articleInfo?.information?.url ? articleInfo?.information?.url : articleInfo.url,
       style:
       articleInfo.status === "complete"
         ? "bg-emerald-400 border-emerald-400"
@@ -67,7 +67,9 @@ export default function LinkStatusDashboard({ articleStatusInfo }) {
                 </h2>
               ) : (
                 <h2 className="text-2xl pb-1">
-                  There was an error before parsing the document
+                  {article?.errorType === "GoogleRespError" && <span>There was an error before parsing the document</span>}
+                  {article?.errorType === "HygraphRespError" && <span>There was an error uploading the document</span>}
+
                 </h2>
               )}
 

@@ -34,7 +34,8 @@ async function readDoc(documentId, documentLink) {
       const resp = await doc.documents.get({ documentId });
       resolve(resp.data);
     } catch (err) {
-      reject(new GoogleAPIRespError(err.message, null, documentLink, documentId).createError());
+      console.log(err);
+      reject(new CustomError(err.errors[0].message, {type: "GoogleRespError"}));
     }
   });
 }
@@ -52,12 +53,13 @@ const sendArticle = async (link, domain) => {
     try {
       const docId = link.split("d/")[1].split("/")[0];
       const docData = await readDoc(docId, link);
+      console.log(docData);
       if (docData.errors) {
-        reject(new GoogleAPIRespError(docData.errors[0].message, null, link, docId).createError());
+        reject(new CustomError(docData.errors[0].message, {type: "GoogleRespError"}));
       }
       const hygraphAst = transpileDocsAstToHygraphAst(docData.body.content);
       if (!hygraphAst)
-        reject(new HygraphRespError("Error transpiling document" , docData, link, docId).createError());
+        reject(new CustomError('Error transpiling document', {type: "HygraphRespError"}));
       const imgUriArray = utils.extractImageUris(docData?.inlineObjects);
       const uploadResults = [];
       let uploadErrors;
@@ -69,7 +71,7 @@ const sendArticle = async (link, domain) => {
           else uploadResults.push(imgUploadResult);
         }
         if(uploadResults.length > 0 && uploadResults[0].errors){
-          reject(new HygraphRespError(uploadResults[0].errors[0].message, uploadResults[0], link, docId).createError());
+          reject(new CustomError('Error uploading image(s)', {type: "HygraphRespError"}));
         }else {
           //hygraph doesn't throw an error for incorrect image formats, so we need to check for that here
           uploadErrors = uploadResults.filter((result) => {
