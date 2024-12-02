@@ -60,7 +60,8 @@ const queries = {
   searchForTags: async function (tags) {
         const query = `query searchTags($tags: [String!]!) {
   contentTag(stage: DRAFT where: {tagValue_in: $tags}) {
-    id
+    id,
+    tagValue
   }
 }`;
     return new Promise(async (resolve, reject) => {
