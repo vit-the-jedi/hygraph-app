@@ -37,7 +37,7 @@ const queries = {
   uploadImageLegacy: async function (uri) {
     return new Promise(async (resolve, reject) => {
       try {
-        const response = await fetch(`${apiKeyMap[brand].url}/upload`, {
+        const response = await fetch(`${process.env.API_URL}/upload`, {
           method: "POST",
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
