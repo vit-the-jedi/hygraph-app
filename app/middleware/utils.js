@@ -7,12 +7,16 @@ const utils = {
       const trimmed = title
         .split(" ")
         .reduce((acc, curr, i, arr) => {
-          if (i <= 10) {
-            acc.push(curr.toLowerCase());
-          }
+            if (i <= 10) {
+              // remove special characters
+              curr = curr.replaceAll(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
+              acc.push(curr.toLowerCase());
+            }
           return acc;
         }, [])
-        .filter((word) => word.match(/[a-z]/gim));
+        .filter((word) =>{ 
+          return word.match(/[a-z]/gim)}
+        );
       const currentYear = String(new Date().getFullYear());
       if (title.includes(currentYear)) {
         trimmed.push(currentYear);
@@ -43,6 +47,7 @@ const utils = {
           .trim();
       else return null;
     } catch (e) {
+      console.log(`Error extracting title: ${e}`);
       return null;
     }
   },
