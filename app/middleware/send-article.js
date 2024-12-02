@@ -78,7 +78,7 @@ const sendArticle = async (link, domain) => {
       //check if there are images in the google document
       if (imgUriArray) {
         for (const imgUri of imgUriArray.slice().reverse()) {
-          const imgUploadResult = await queries.uploadImage(imgUri);
+          const imgUploadResult = await queries.uploadImageLegacy(imgUri);
           //check if hygraph sent back an error
           if(imgUploadResult.errors) uploadErrors = imgUploadResult.errors.map((e)=>e);
           else uploadResults.push(imgUploadResult);
@@ -114,18 +114,20 @@ const sendArticle = async (link, domain) => {
         }
       }
       if (hygraphAst.contentTag.length > 0) {
-        //get the ids if they exist
         const connectTagsObj = {};
-        const tagsFound = await queries.searchForTags(hygraphAst.contentTag.map((tag) => tag.tagValue));        
-        const tagIds = tagsFound.data.contentTag.map((tag) => tag.id);
-        const diff = hygraphAst.contentTag.length - tagIds.length;
-        if (diff > 0) {
-          connectTagsObj.create = [];
-          for (const tag of hygraphAst.contentTag.slice(diff + 1)) {
-            connectTagsObj.create.push({tagValue: tag.tagValue });
-          }
-        }
-        connectTagsObj.connect = tagIds.map((id) => { return {id:id}});
+        //check hygraph to see if the tags in the document already exist
+        const tagsFound = await queries.searchForTags(hygraphAst.contentTag.map((tag) => tag.tagValue));
+        //if yes, save them to connect to the article     
+        const tagsToConnect = tagsFound.data.contentTag.map((tag) => tag );
+        //the remaining tags need to be created
+        //filter out the ones that are already in hygraph, add the rest to the create array
+        const tagsToCreate = hygraphAst.contentTag.filter((tag) => {
+          return !tagsToConnect.some((tagToConnect) => tagToConnect.tagValue === tag.tagValue);
+        })
+        //create the connect object for the article, removing the tagValue property and only passing id
+        connectTagsObj.connect = tagsToConnect.map((tag) => {return {id: tag.id}});
+        connectTagsObj.create = tagsToCreate;
+  
         //console.log(`CONNECT TAGS OBJ: `, connectTagsObj);
         article.contentTag = connectTagsObj;
       }
