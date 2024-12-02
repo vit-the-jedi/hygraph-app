@@ -167,7 +167,7 @@ const utils = {
       case "simplyjobs.com":
         return "simplyjobsCom";
       case "searchmynewjob.com":
-        return "searchMyNewJobCom";
+        return "searchmynewjobCom";
       default:
         return null;
     }
