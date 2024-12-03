@@ -108,56 +108,92 @@ const createHeadingName = (namedStyleType) => {
       return "paragraph";
   }
 };
+const extractTextAndPropsFromElement = (contentBlock, isTable = false) => {
+  let contentBlockTextStyle = null;
+  const totalTextRunArr = contentBlock?.paragraph?.elements.map(
+    (element, i, arr) => {
+      const isLinkElement = element?.textRun?.textStyle?.link;
+      if (isLinkElement) {
+        return {
+          type: "link",
+          href: isLinkElement.url,
+          title: "",
+          openInNewTab: true,
+          children: [
+            {
+              type: "text",
+              text: element.textRun?.content.replace(/(\r\n|\n|\r)/gm, ""),
+            },
+          ],
+        };
+      }
+      if (element.textRun && element.textRun.content) {
+        contentBlockTextStyle = contentBlock.paragraph?.paragraphStyle
+          ?.namedStyleType
+          ? createHeadingName(
+              contentBlock.paragraph.paragraphStyle.namedStyleType
+            )
+          : "paragraph";
+        //if(isTable) debugger;
+        if (element.textRun.content === "") {
+          return null;
+        }
+        return {
+          bold: element.textRun?.textStyle?.bold,
+          italic: element.textRun?.textStyle?.italic,
+          underline: element.textRun?.textStyle?.underline,
+          text: element.textRun?.content.replace(/(\r\n|\n|\r)/gm, ""),
+        };
+      }
+    }
+  );
+  return {
+    type: contentBlockTextStyle,
+    //filter out any null values
+    children: totalTextRunArr.filter((element) => element),
+  };
+};
 const createAstFromDocs = (content) => {
-  let contentBlockStyle = null;
   //ast is an array of objects, each object represents a text block
   let ast = content.map((contentBlock, index, arr) => {
     //create an inner array of objects that will be the children of the parent text block
     //each child represents a text node with its style
     //when added to the children property on the parent text block, each text node will be combined to display an entire text block,
     //instead of each text node being displayed as a separate block
-    if (!contentBlock.paragraph) {
-      return null;
+    if (contentBlock.paragraph) {
+      return extractTextAndPropsFromElement(contentBlock);
+    } else if (contentBlock.table) {
+      const totalTableRows = contentBlock.table.tableRows.map(
+        (tableRow, i, arr) => {
+          const totalTableCells = tableRow.tableCells.map(
+            (tableCell, i, arr) => {
+              const totalTableCellChildren = tableCell.content.map(
+                (contentBlock, i, arr) => {
+                  let textAndPropsArr =[]
+                  const textAndProps = extractTextAndPropsFromElement(contentBlock, true);
+                  if(textAndProps.children[0].text !== "") return textAndProps;
+                  return null
+                }
+              );
+              return {
+                type: "table_cell",
+                children: totalTableCellChildren,
+              };
+            }
+          ).filter((el)=> el &&  el.children[0] && el.children[0].children[0].text !== "");
+          return {
+            type: "table_row",
+            children: totalTableCells,
+          };
+        }
+      );
+      return {
+        type: "table",
+        children: [{ type: "table_body", children: totalTableRows }],
+      };
     }
-    const totalTextRunArr = contentBlock?.paragraph?.elements.map(
-      (element, i, arr) => {
-        const isLinkElement = element?.textRun?.textStyle?.link;
-        if (isLinkElement) {
-          return {
-            type: "link",
-            href: isLinkElement.url,
-            title: "",
-            openInNewTab: true,
-            children: [
-              {
-                type: "text",
-                text: element.textRun?.content.replace(/(\r\n|\n|\r)/gm, ""),
-              },
-            ],
-          };
-        }
-        if (element.textRun && element.textRun.content) {
-          contentBlockStyle = contentBlock.paragraph?.paragraphStyle
-            ?.namedStyleType
-            ? createHeadingName(
-                contentBlock.paragraph.paragraphStyle.namedStyleType
-              )
-            : "paragraph";
-          return {
-            bold: element.textRun?.textStyle?.bold,
-            italic: element.textRun?.textStyle?.italic,
-            underline: element.textRun?.textStyle?.underline,
-            text: element.textRun?.content.replace(/(\r\n|\n|\r)/gm, ""),
-          };
-        }
-      }
-    );
-    return {
-      type: contentBlockStyle,
-      //filter out any null values
-      children: totalTextRunArr.filter((element) => element),
-    };
   });
+  console.log(`AST`, ast.filter((astNode) => astNode)[10].children);
   return {
     children: ast.filter((astNode) => astNode),
   };
@@ -238,7 +274,6 @@ const transpileDocsAstToHygraphAst = (contentObj) => {
   );
   return hygraphAst;
 };
-
 
 class HygraphAst {
   constructor() {
