@@ -78,7 +78,7 @@ const sendArticle = async (link, domain) => {
       //check if there are images in the google document
       if (imgUriArray) {
         for (const imgUri of imgUriArray.slice().reverse()) {
-          const imgUploadResult = await queries.uploadImageLegacy(imgUri);
+          const imgUploadResult = await queries.uploadImage(imgUri);
           //check if hygraph sent back an error
           if(imgUploadResult.errors) uploadErrors = imgUploadResult.errors.map((e)=>e);
           else uploadResults.push(imgUploadResult);
@@ -112,7 +112,7 @@ const sendArticle = async (link, domain) => {
             };
           }
         }
-      }
+      } 
       if (hygraphAst.contentTag.length > 0) {
         const connectTagsObj = {};
         //check hygraph to see if the tags in the document already exist
