@@ -19,6 +19,7 @@ class Article {
     this.content = null;
     this.metaKeywords = null;
     this.coverImage = null;
+    this.coverImageAltText = null;
     this.domain = null;
     this.contentTag = null;
   }
@@ -144,7 +145,7 @@ const sendArticle = async (link, domain) => {
       article.subvertical = hygraphAst.subvertical || null;
       article.readTime = hygraphAst.readTime || "5 min read";
       article.domain = utils.transformDomainToHygraphAPIRef(domain);
-
+      article.coverImageAltText = hygraphAst.coverImageAltText;  
       //upload the article
       const articleCreationResponse = await queries.uploadArticle(article);
 
@@ -157,7 +158,7 @@ const sendArticle = async (link, domain) => {
     } catch (err) {
       //catch-all for any code errors that pop up in article creation
       //again, these code errors can surface from anywhere in the article creation tree
-      //the stack trace may will lead here, but the error could be in any of the underlying functions or imports
+      //the stack trace will lead here, but the error could be in any of the underlying functions or imports
       reject(new CustomError(err.message, {type: "CodeError", stack: err.stack}));
     }
   });
