@@ -193,7 +193,6 @@ const createAstFromDocs = (content) => {
       };
     }
   });
-  console.log(`AST`, ast.filter((astNode) => astNode)[10].children);
   return {
     children: ast.filter((astNode) => astNode),
   };
@@ -263,6 +262,13 @@ const transpileDocsAstToHygraphAst = (contentObj) => {
               element = null;
             }
           }
+          if (!hygraphAst.coverImageAltText) {
+            const contentTagMatch = utils.extractCoverImageAltText(text);
+            if (contentTagMatch) {
+              hygraphAst.coverImageAltText = contentTagMatch;
+              element = null;
+            }
+          }
         }
       }
     }
@@ -272,6 +278,7 @@ const transpileDocsAstToHygraphAst = (contentObj) => {
   hygraphAst.ast = createAstFromDocs(
     remainingContent.filter((content) => content)
   );
+  console.log(`HYGRAPH AST`, hygraphAst);
   return hygraphAst;
 };
 

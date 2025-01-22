@@ -121,6 +121,20 @@ const utils = {
       return null;
     }
   },
+  extractCoverImageAltText: (text) => {
+    const regex = /cover\s+image\s+alt\s+text:/gim;
+    try {
+      const m = text.match(regex);
+      const t = text
+        .replace(regex, "")
+        .replace(/\r?\n|\r/g, " ")
+        .trim();
+      if (m) return t;
+      else return null;
+    } catch (e) {
+      return null;
+    }
+  },
   extractContentTags: (text) => {
     try {
       const regex = /content\s+tags:/gim;
