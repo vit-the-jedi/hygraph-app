@@ -1,3 +1,15 @@
+## About
+
+This app takes in an array of google documents, parses and transpiles them for upload to Hygraph, a GraphQL-backed CMS.
+
+## Usage
+
+Create a google doc with a predefined schema, and share that doc with a google service account that is set up to handle the API requests.
+
+The API returns a JSON representation of the google document, which is then transpiled to satisfy the GraphQL schema requirements.
+
+Finally, each transpiled document is queued for upload via the GraphQL API provided by the service.
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
