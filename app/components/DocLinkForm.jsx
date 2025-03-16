@@ -29,7 +29,7 @@ const reducer = (state, action) => {
         ),
       };
     case "NO_LINKS":
-      return { ...state, error: "Please add at least one link" };
+      return { ...state, error: "Only google docs links are allowed." };
     case "CLEAR_ERROR":
       return { ...state, error: null };
     default:
@@ -93,6 +93,7 @@ export default function DocLinkForm() {
           </option>
           <option value="simplyjobs.com">Simply Jobs</option>
           <option value="searchmynewjob.com">Search My New Job</option>
+          <option value="getthejob.com">Get The Job</option>
         </select>
       </div>
       {state.inputs.map((input, i, arr) => (
